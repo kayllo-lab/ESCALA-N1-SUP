@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscalaNet N1 — Suporte</title>
+<meta name="description" content="Sistema de gerenciamento de escalas do Suporte N1 com rodízio automático">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117; --s1:#1a1f2e; --s2:#1e2436; --s3:#242a3d;
+  --bd:#2d3348; --bd2:#3a4060;
+  --blue:#3b82f6; --blue-g:rgba(59,130,246,.15); --blue-d:#2563eb;
+  --green:#10b981; --green-g:rgba(16,185,129,.15);
+  --amber:#f59e0b; --amber-g:rgba(245,158,11,.15);
+  --red:#ef4444; --red-g:rgba(239,68,68,.15);
+  --purple:#8b5cf6; --purple-g:rgba(139,92,246,.15);
+  --cyan:#06b6d4; --pink:#ec4899; --orange:#f97316;
+  --t1:#e4e8f0; --t2:#8892a4; --t3:#4a5568;
+  --sw:256px; --hh:60px;
+  --r:12px; --rs:8px; --rx:6px;
+  --tr:200ms ease;
+  --f:'Inter',-apple-system,sans-serif;
+  --c0:#3b82f6; --c0b:rgba(59,130,246,.14);
+  --c1:#10b981; --c1b:rgba(16,185,129,.14);
+  --c2:#f59e0b; --c2b:rgba(245,158,11,.14);
+  --c3:#8b5cf6; --c3b:rgba(139,92,246,.14);
+  --c4:#ec4899; --c4b:rgba(236,72,153,.14);
+  --c5:#06b6d4; --c5b:rgba(6,182,212,.14);
+  --c6:#f97316; --c6b:rgba(249,115,22,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--f);background:var(--bg);color:var(--t1);line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+button{font-family:var(--f);cursor:pointer;border:none;outline:none;background:none}
+input,select,textarea{font-family:var(--f)}
+ul,ol{list-style:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sw);height:100vh;background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;z-index:100;transition:transform var(--tr)}
+.sb-logo{padding:18px 14px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 0 20px rgba(59,130,246,.3)}
+.logo-tx h1{font-size:.88rem;font-weight:800;line-height:1.2}
+.logo-tx span{font-size:.68rem;color:var(--t2)}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 8px;display:flex;flex-direction:column;gap:1px}
+.nav-sec{font-size:.63rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:10px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--rx);cursor:pointer;transition:all var(--tr);font-size:.83rem;font-weight:500;color:var(--t2);user-select:none}
+.nav-item:hover{background:var(--s3);color:var(--t1)}
+.nav-item.active{background:var(--blue-g);color:var(--blue)}
+.nav-ic{font-size:.95rem;width:20px;text-align:center}
+.sb-foot{padding:10px 8px;border-top:1px solid var(--bd)}
+.user-pill{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rx);cursor:pointer;transition:background var(--tr)}
+.user-pill:hover{background:var(--s3)}
+.uav{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
+.uinfo{overflow:hidden;flex:1}
+.uname{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.urole{font-size:.68rem;color:var(--t2)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--hh);background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 22px;gap:14px;flex-shrink:0}
+.tb-title{font-size:.95rem;font-weight:700;flex:1}
+.tb-actions{display:flex;align-items:center;gap:8px}
+.week-chip{font-size:.72rem;color:var(--t2);background:var(--s2);border:1px solid var(--bd);border-radius:var(--rx);padding:3px 10px}
+.content{flex:1;overflow-y:auto;padding:22px}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:14px;flex-wrap:wrap}
+.ph h2{font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,var(--t1),var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ph p{font-size:.82rem;color:var(--t2);margin-top:3px}
+.ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px}
+.ct{font-size:.87rem;font-weight:600;margin-bottom:12px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;transition:border-color var(--tr)}
+.sc:hover{border-color:var(--bd2)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.sc.blue::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.sc.green::before{background:linear-gradient(90deg,var(--green),transparent)}
+.sc.amber::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.sc.purple::before{background:linear-gradient(90deg,var(--purple),transparent)}
+.sc.red::before{background:linear-gradient(90deg,var(--red),transparent)}
+.sl{font-size:.68rem;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
+.sv{font-size:1.9rem;font-weight:800;line-height:1;margin:5px 0 3px}
+.sm{font-size:.73rem;color:var(--t2)}
+.si{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:2.5rem;opacity:.04}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--rx);font-size:.8rem;font-weight:600;cursor:pointer;transition:all var(--tr);border:1px solid transparent;white-space:nowrap;font-family:var(--f)}
+.btn:active{transform:scale(.98)}
+.btn-sm{padding:5px 9px;font-size:.73rem}
+.btn-lg{padding:10px 20px;font-size:.88rem}
+.btn-ic{padding:6px;width:32px;height:32px;justify-content:center}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-d);box-shadow:0 0 0 3px rgba(59,130,246,.2)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:#059669}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-amber{background:var(--amber);color:#000}
+.btn-amber:hover{background:#d97706}
+.btn-secondary{background:var(--s3);color:var(--t1);border-color:var(--bd)}
+.btn-secondary:hover{background:var(--bd)}
+.btn-ghost{background:transparent;color:var(--t2);border-color:var(--bd)}
+.btn-ghost:hover{background:var(--s3);color:var(--t1)}
+.btn-outline-blue{background:transparent;color:var(--blue);border-color:rgba(59,130,246,.35)}
+.btn-outline-blue:hover{background:var(--blue-g)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;font-size:.67rem;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.badge-blue{background:var(--blue-g);color:var(--blue);border-color:rgba(59,130,246,.25)}
+.badge-green{background:var(--green-g);color:var(--green);border-color:rgba(16,185,129,.25)}
+.badge-amber{background:var(--amber-g);color:var(--amber);border-color:rgba(245,158,11,.25)}
+.badge-red{background:var(--red-g);color:var(--red);border-color:rgba(239,68,68,.25)}
+.badge-purple{background:var(--purple-g);color:var(--purple);border-color:rgba(139,92,246,.25)}
+.badge-gray{background:rgba(75,85,99,.18);color:var(--t2);border-color:var(--bd)}
+
+/* AVATAR */
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:700;flex-shrink:0}
+.av-sm{width:26px;height:26px;font-size:.63rem}
+.av-lg{width:44px;height:44px;font-size:.9rem}
+.av0{background:var(--c0b);color:var(--c0)}.av1{background:var(--c1b);color:var(--c1)}.av2{background:var(--c2b);color:var(--c2)}.av3{background:var(--c3b);color:var(--c3)}.av4{background:var(--c4b);color:var(--c4)}.av5{background:var(--c5b);color:var(--c5)}.av6{background:var(--c6b);color:var(--c6)}
+
+/* AGENT CHIP */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 5px;border-radius:99px;border:1px solid var(--bd);background:var(--s2);font-size:.78rem;font-weight:500;white-space:nowrap}
+
+/* TABLE */
+.tw{border-radius:var(--r);border:1px solid var(--bd);overflow-x:auto;background:var(--s1)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th{padding:9px 13px;text-align:left;font-size:.66rem;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;background:var(--s2);border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:9px 13px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.ag-cell{display:flex;align-items:center;gap:8px}
+.st{font-weight:700;font-size:.83rem}
+.sb{font-size:.7rem;color:var(--t2);margin-top:1px}
+/* STICKY COLUMNS */
+.col-sticky-r{position:sticky;right:0;z-index:2;background:var(--s1)}
+th.col-sticky-r{background:var(--s2);z-index:3}
+tbody tr:hover .col-sticky-r{background:color-mix(in srgb,var(--s1) 98%,white 2%)}
+.col-sticky-r::before{content:'';position:absolute;left:-1px;top:0;bottom:0;width:1px;background:var(--bd)}
+
+/* SHIFT BLOCK */
+.shift-blk{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs)}
+.shift-blk-time{font-weight:700;font-size:.88rem;min-width:110px}
+.shift-blk-agents{display:flex;flex-wrap:wrap;gap:5px}
+
+/* WEEK NAVIGATOR */
+.wnav{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:9px 14px;margin-bottom:14px}
+.wnav-info{flex:1;text-align:center}
+.wnav-lbl{font-size:.72rem;color:var(--t2)}
+.wnav-range{font-size:.95rem;font-weight:700}
+
+/* ALERTS */
+.alert{display:flex;gap:10px;padding:11px 14px;border-radius:var(--rs);font-size:.8rem;border:1px solid transparent;margin-bottom:14px}
+.alert-ic{font-size:.95rem;flex-shrink:0;margin-top:1px}
+.alert-title{font-weight:600;margin-bottom:1px}
+.alert-msg{color:var(--t2);font-size:.75rem}
+.al-info{background:var(--blue-g);border-color:rgba(59,130,246,.25)}
+.al-success{background:var(--green-g);border-color:rgba(16,185,129,.25)}
+.al-warning{background:var(--amber-g);border-color:rgba(245,158,11,.25)}
+.al-danger{background:var(--red-g);border-color:rgba(239,68,68,.25)}
+
+/* CONFLICT */
+.cfitem{display:flex;gap:9px;align-items:flex-start;padding:9px 12px;background:var(--red-g);border:1px solid rgba(239,68,68,.25);border-radius:var(--rs);font-size:.8rem;margin-bottom:6px}
+.cfitem.warn{background:var(--amber-g);border-color:rgba(245,158,11,.25)}
+.cft{font-weight:600}.cfd{color:var(--t2);font-size:.74rem;margin-top:1px}
+
+/* QUEUE CARD */
+.qcard{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rs);transition:all var(--tr);position:relative}
+.qcard:hover{border-color:var(--bd2)}
+.qcard.next{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.04)}
+.qpos{width:26px;height:26px;border-radius:5px;background:var(--s2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--t2);flex-shrink:0}
+.qinfo{flex:1}
+.qname{font-weight:600;font-size:.85rem}
+.qmeta{font-size:.72rem;color:var(--t2);margin-top:1px}
+.qstats{display:flex;gap:14px;flex-shrink:0}
+.qsv{font-size:1.05rem;font-weight:700;line-height:1}
+.qsl{font-size:.63rem;color:var(--t3);margin-top:1px}
+.next-tag{position:absolute;top:8px;right:10px;font-size:.62rem;font-weight:700;background:var(--amber-g);color:var(--amber);border:1px solid rgba(245,158,11,.25);padding:1px 6px;border-radius:99px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bd);gap:0;overflow-x:auto;margin-bottom:18px}
+.tab-btn{padding:9px 15px;font-size:.8rem;font-weight:500;color:var(--t2);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all var(--tr);white-space:nowrap;margin-bottom:-1px;font-family:var(--f)}
+.tab-btn:hover{color:var(--t1)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:.78rem;font-weight:500;color:var(--t2)}
+.fi{background:var(--s2);border:1px solid var(--bd);border-radius:var(--rx);color:var(--t1);padding:7px 11px;font-size:.82rem;width:100%;transition:all var(--tr);font-family:var(--f)}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.15);outline:none}
+.fi::placeholder{color:var(--t3)}
+select.fi{cursor:pointer;-webkit-appearance:none;appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238892a4' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+select.fi option{background:var(--s2)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fa{display:flex;gap:8px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--bd);margin-top:14px}
+
+/* MODAL */
+.modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fi .15s ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.8);animation:ms .2s ease}
+.modal-lg{max-width:700px}
+@keyframes ms{from{opacity:0;transform:scale(.95) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--s1);z-index:1}
+.mh h3{font-size:.95rem;font-weight:700}
+.mc{width:28px;height:28px;border-radius:var(--rx);background:var(--s2);border:1px solid var(--bd);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;transition:all var(--tr)}
+.mc:hover{background:var(--red-g);color:var(--red);border-color:var(--red)}
+.mb{padding:18px}
+.mf{padding:13px 18px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dn{text-align:center;font-size:.65rem;font-weight:700;color:var(--t2);padding:7px 4px;text-transform:uppercase;letter-spacing:.04em}
+.cal-cell{min-height:78px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--rs);padding:5px;cursor:pointer;transition:all var(--tr);overflow:hidden}
+.cal-cell:hover{border-color:var(--blue);background:var(--s2)}
+.cal-cell.today{border-color:var(--blue);background:rgba(59,130,246,.07)}
+.cal-cell.om{opacity:.25}
+.cal-cell.sunday{background:rgba(245,158,11,.035)}
+.cal-num{font-size:.78rem;font-weight:600;margin-bottom:3px}
+.cal-cell.today .cal-num{color:var(--blue)}
+.cal-ev{font-size:.59rem;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.ev-shift{background:rgba(59,130,246,.22);color:#7cb8ff}
+.ev-sat{background:rgba(139,92,246,.22);color:#c4b5fd}
+.ev-oncall{background:rgba(245,158,11,.22);color:#fcd34d}
+.ev-leave{background:rgba(100,116,139,.3);color:var(--t2)}
+
+/* TOAST */
+#tz{position:fixed;top:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);box-shadow:0 8px 32px rgba(0,0,0,.6);min-width:240px;max-width:340px;font-size:.8rem;pointer-events:all;animation:tin .22s ease}
+.toast.rm{animation:tout .22s ease forwards}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.warning{border-left:3px solid var(--amber)}
+.toast.info{border-left:3px solid var(--blue)}
+@keyframes tin{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes tout{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(100%)}}
+
+/* UTILS */
+.flex{display:flex}.fc{flex-direction:column}.ia{align-items:center}.ias{align-items:flex-start}.jb{justify-content:space-between}.jc{justify-content:center}.je{justify-content:flex-end}.f1{flex:1}.fw{flex-wrap:wrap}
+.g2{gap:8px}.g3{gap:12px}.g4{gap:16px}.g6{gap:24px}
+.grid{display:grid}.g-2{grid-template-columns:1fr 1fr}.g-3{grid-template-columns:1fr 1fr 1fr}.g-4{grid-template-columns:1fr 1fr 1fr 1fr}.g-auto{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.hidden{display:none!important}
+.w100{width:100%}
+.mt2{margin-top:8px}.mt3{margin-top:12px}.mt4{margin-top:16px}.mt6{margin-top:24px}
+.mb2{margin-bottom:8px}.mb3{margin-bottom:12px}.mb4{margin-bottom:16px}.mb6{margin-bottom:24px}
+.tsm{font-size:.8rem}.txs{font-size:.7rem}.tlg{font-size:1.05rem}
+.fw6{font-weight:600}.fw7{font-weight:700}.fw8{font-weight:800}
+.tm{color:var(--t2)}.tblue{color:var(--blue)}.tgreen{color:var(--green)}.tamber{color:var(--amber)}.tred{color:var(--red)}
+.tc{text-align:center}
+.rnd{border-radius:var(--rs)}
+.divider{height:1px;background:var(--bd);margin:14px 0}
+.mla{margin-left:auto}
+.progress{height:5px;background:var(--s3);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;gap:10px;text-align:center}
+.empty-ic{font-size:2.2rem;opacity:.25}
+.empty p{color:var(--t2);font-size:.83rem}
+.page-enter{animation:pe .18s ease}
+@keyframes pe{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* TYPE BADGES */
+.t-exp{background:var(--blue-g);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.t-sat{background:var(--purple-g);color:var(--purple);border:1px solid rgba(139,92,246,.2)}
+.t-plt{background:var(--amber-g);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.t-flg{background:rgba(75,85,99,.15);color:var(--t2);border:1px solid var(--bd)}
+
+/* MOBILE */
+.hamburger{display:none}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99;backdrop-filter:blur(2px)}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 50px rgba(0,0,0,.9)}
+  .sb-overlay.visible{display:block}
+  .hamburger{display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:transparent;border:1px solid var(--bd);border-radius:var(--rx);color:var(--t2);font-size:1rem;cursor:pointer}
+  .content{padding:14px}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .topbar{padding:0 14px}
+  .frow{grid-template-columns:1fr}
+  .g-2,.g-3,.g-4{grid-template-columns:1fr}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr}}
+@media print{.sidebar,.topbar,.ph-actions,.hamburger,#tz,.wnav .btn{display:none!important}.content{padding:0}.card,.tw{border:1px solid #ccc}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div id="tz"></div>
+<div class="app">
+  <div class="sb-overlay" id="sb-ov" onclick="closeSB()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="logo-ic">📡</div>
+      <div class="logo-tx"><h1>EscalaNet</h1><span>Suporte N1</span></div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div class="sb-foot">
+      <div class="user-pill" onclick="navigate('configuracoes')">
+        <div class="uav" id="uav-el">🔑</div>
+        <div class="uinfo">
+          <div class="uname" id="uname-el">Administrador</div>
+          <div class="urole" id="urole-el">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="hamburger" onclick="openSB()">☰</button>
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div class="tb-actions">
+        <div class="week-chip" id="wk-chip"></div>
+        <button class="btn btn-ghost btn-ic" onclick="navigate('escala')" title="Escala">📅</button>
+      </div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+// ================================================================
+// DATA LAYER
+// ================================================================
+const DB_KEY = 'en1v4';
+const APP_VERSION = '2.2.1';
+
+// Equipe inicial. "from" / "to" = segunda-feira da semana em que a pessoa ENTRA / deixa de estar na escala
+// (to = primeira semana em que ela já NÃO trabalha). null = sem limite.
+const INITIAL_TEAM = [
+  {id:'e1',name:'Fladson',    initials:'FL',color:0,from:null,to:null},
+  {id:'e2',name:'Allan',      initials:'AL',color:1,from:null,to:null},
+  {id:'e3',name:'Nilson',     initials:'NI',color:2,from:null,to:null},
+  {id:'e4',name:'Bruno',      initials:'BR',color:3,from:null,to:null},
+  {id:'e5',name:'Andressa',   initials:'AN',color:4,from:null,to:null},
+  {id:'e6',name:'Yeso',       initials:'YE',color:5,from:null,to:null},
+  {id:'e7',name:'Pedro Lucas',initials:'PL',color:6,from:null,to:null},
+];
+// Equipe ativa na semana exibida (CWS). Recalculada por refreshEMP() a cada navegação.
+let EMP = [];
+
+// Ciclo padrão Seg-Sex: 7 posições circulares — ordem entrelaçada para que
+// nenhum agente fique no MESMO horário de início duas semanas seguidas.
+const DEF_WD = [
+  {id:'w0',n:'H1',start:'07:00',end:'17:00',bkS:'11:00',bkE:'13:00'},
+  {id:'w1',n:'H2',start:'08:00',end:'18:00',bkS:'12:00',bkE:'14:00'},
+  {id:'w3',n:'H4',start:'10:00',end:'20:00',bkS:'14:00',bkE:'16:00'},
+  {id:'w5',n:'H6',start:'12:00',end:'22:00',bkS:'16:00',bkE:'18:00'},
+  {id:'w2',n:'H3',start:'08:00',end:'18:00',bkS:'12:00',bkE:'14:00'},
+  {id:'w4',n:'H5',start:'10:00',end:'20:00',bkS:'14:00',bkE:'16:00'},
+  {id:'w6',n:'H7',start:'12:00',end:'22:00',bkS:'16:00',bkE:'18:00'},
+];
+// Ciclo padrão de Sábado
+const DEF_SAT = [
+  {id:'s0',start:'08:00',end:'12:00'},
+  {id:'s2',start:'10:00',end:'14:00'},
+  {id:'s5',start:'16:00',end:'20:00'},
+  {id:'s1',start:'08:00',end:'12:00'},
+  {id:'s3',start:'10:00',end:'14:00'},
+  {id:'s4',start:'14:00',end:'18:00'},
+  {id:'s6',start:'16:00',end:'20:00'},
+];
+// Tipos de horário que podem ser criados quando entra alguém novo
+const WD_TYPES = [
+  {start:'07:00',end:'17:00',bkS:'11:00',bkE:'13:00'},
+  {start:'08:00',end:'18:00',bkS:'12:00',bkE:'14:00'},
+  {start:'10:00',end:'20:00',bkS:'14:00',bkE:'16:00'},
+  {start:'12:00',end:'22:00',bkS:'16:00',bkE:'18:00'},
+];
+const SAT_TYPES = [
+  {start:'08:00',end:'12:00'},
+  {start:'10:00',end:'14:00'},
+  {start:'14:00',end:'18:00'},
+  {start:'16:00',end:'20:00'},
+];
+
+const ONCALL_INITIAL = [
+  {date:'2026-08-30',emps:['e6','e1']}, // Yeso + Fladson
+  {date:'2026-09-06',emps:['e4','e3']}, // Bruno + Nilson
+  {date:'2026-09-13',emps:['e2','e5']}, // Allan + Andressa
+];
+
+// Regra do Pedro Lucas: só faz plantão junto com um destes parceiros (alternando)
+const PL_ID = 'e7';
+const PL_PARTNERS = ['e6','e1'];
+
+// Base week: Monday 07/09/2026
+const BASE_WK = '2026-09-07';
+// Posição base de cada agente na semana 0 (07/09/2026) — índice no ciclo padrão
+const WD_BASE = {e1:0, e2:1, e3:4, e4:2, e5:5, e6:3, e7:6};
+// Sábado: posição base de cada agente na semana 0 (12/09/2026)
+const SAT_BASE = {e4:0, e7:3, e3:1, e1:4, e6:5, e2:2, e5:6};
+
+function defOrder(kind){return (kind==='wd'?DEF_WD:DEF_SAT).map(s=>s.id);}
+function defaultDefs(){
+  const o={wd:{},sat:{}};
+  DEF_WD.forEach(s=>{o.wd[s.id]={...s};});
+  DEF_SAT.forEach(s=>{o.sat[s.id]={...s};});
+  return o;
+}
+function freshState(){
+  return{
+    oncall: JSON.parse(JSON.stringify(ONCALL_INITIAL)),
+    leaves: [],
+    coverage: {},   // date → {absentEmpId:coveringEmpId}
+    swaps: [],
+    comps: [],
+    overrides: {},  // weekStart → {wd:{empId:slotId}, sat:{empId:slotId}}  (edição só daquela semana)
+    anchors: {wd:{}, sat:{}}, // weekStart → {order:[slotIds], pos:{empId:índice}}  (o rodízio continua dali)
+    team: JSON.parse(JSON.stringify(INITIAL_TEAM)),
+    slotDefs: defaultDefs(), // definição de cada horário (id → horário)
+    events: [],      // entradas e saídas de colaboradores
+    config: {role:'admin',name:'Administrador',oncallCount:2,minRest:10},
+    log: [],
+  };
+}
+
+let S = null;
+
+function migrateS(){
+  if(!S.oncall)S.oncall=JSON.parse(JSON.stringify(ONCALL_INITIAL));
+  if(!S.leaves)S.leaves=[];
+  if(!S.swaps)S.swaps=[];
+  if(!S.comps)S.comps=[];
+  if(!S.log)S.log=[];
+  if(!S.config)S.config={role:'admin',name:'Administrador',oncallCount:2,minRest:10};
+  if(!S.coverage)S.coverage={};
+  if(!S.overrides)S.overrides={};
+  if(!S.anchors)S.anchors={wd:{},sat:{}};
+  ['wd','sat'].forEach(k=>{
+    if(!S.anchors[k])S.anchors[k]={};
+    // formato antigo (v2.1): âncora = {empId: posição}  →  novo: {order, pos}
+    Object.keys(S.anchors[k]).forEach(w=>{const a=S.anchors[k][w];if(!a.order)S.anchors[k][w]={order:defOrder(k),pos:a};});
+  });
+  if(!S.team)S.team=JSON.parse(JSON.stringify(INITIAL_TEAM));
+  if(!S.slotDefs)S.slotDefs=defaultDefs();
+  if(!S.slotDefs.wd)S.slotDefs.wd=defaultDefs().wd;
+  if(!S.slotDefs.sat)S.slotDefs.sat=defaultDefs().sat;
+  if(!S.events)S.events=[];
+}
+function loadS(){
+  let r=null;
+  try{r=localStorage.getItem(DB_KEY);}catch{}
+  try{S=r?JSON.parse(r):freshState();}catch{S=freshState();}
+  migrateS();
+}
+function saveS(){try{localStorage.setItem(DB_KEY,JSON.stringify(S));}catch{}}
+function resetS(){S=freshState();saveS();}
+function addLog(action,detail){S.log.unshift({action,detail,by:S.config.name,at:new Date().toISOString()});if(S.log.length>200)S.log=S.log.slice(0,200);}
+
+// ================================================================
+// DATE UTILS
+// ================================================================
+// Usa a data LOCAL (antes usava UTC e "hoje" virava amanhã depois das 21h no Brasil)
+function d2s(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function s2d(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function monday(d){const dw=d.getDay(),diff=dw===0?-6:1-dw,m=new Date(d);m.setDate(d.getDate()+diff);m.setHours(0,0,0,0);return m;}
+function getCWS(){return d2s(monday(new Date()));}
+function wsOf(dateStr){return d2s(monday(s2d(dateStr)));}
+function nws(ws){const d=s2d(ws);d.setDate(d.getDate()+7);return d2s(d);}
+function pws(ws){const d=s2d(ws);d.setDate(d.getDate()-7);return d2s(d);}
+function sat(ws){const d=s2d(ws);d.setDate(d.getDate()+5);return d2s(d);}
+function sun(ws){const d=s2d(ws);d.setDate(d.getDate()+6);return d2s(d);}
+function fri(ws){const d=s2d(ws);d.setDate(d.getDate()+4);return d2s(d);}
+function wkdays(ws){return Array.from({length:5},(_,i)=>{const d=s2d(ws);d.setDate(d.getDate()+i);return d2s(d);});}
+function woff(ws){const b=s2d(BASE_WK),c=s2d(ws);return Math.round((c-b)/(7*24*3600*1000));}
+function safeMod(n,m){return((n%m)+m)%m;}
+function fmtD(s){if(!s)return'';const[y,mo,d]=s.split('-');return`${d}/${mo}/${y}`;}
+function fmtDs(s){if(!s)return'';const mn=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];const[,m,d]=s.split('-').map(Number);return`${d} ${mn[m-1]}`;}
+function fmtWR(ws){const s=sat(ws);const[,m1,d1]=ws.split('-').map(Number);const[,m2,d2]=s.split('-').map(Number);const[y]=ws.split('-');return m1===m2?`${d1}–${d2}/${m1}/${y}`:`${d1}/${m1}–${d2}/${m2}/${y}`;}
+function fmtWRF(ws){return`${fmtD(ws)} a ${fmtD(sun(ws))}`;}
+function dayN(s){return['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'][s2d(s).getDay()];}
+function dayNS(s){return['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][s2d(s).getDay()];}
+function wkLbl(ws){const c=getCWS(),d=woff(ws)-woff(c);if(d===0)return'Semana atual';if(d===1)return'Próxima semana';if(d===-1)return'Semana passada';if(d>0)return`+${d} semanas`;return`${Math.abs(d)} semanas atrás`;}
+function isToday(s){return s===d2s(new Date());}
+function monthDays(year,month){
+  const days=[],first=new Date(year,month-1,1);
+  let dow=(first.getDay()+6)%7;
+  for(let i=dow-1;i>=0;i--){const d=new Date(year,month-1,-i);days.push({date:d2s(d),cur:false});}
+  const last=new Date(year,month,0).getDate();
+  for(let i=1;i<=last;i++){days.push({date:d2s(new Date(year,month-1,i)),cur:true});}
+  while(days.length%7!==0){const ld=s2d(days[days.length-1].date);ld.setDate(ld.getDate()+1);days.push({date:d2s(ld),cur:false});}
+  return days;
+}
+
+// ================================================================
+// EQUIPE (quem está na escala em cada semana)
+// ================================================================
+function activeIn(e,ws){return(!e.from||ws>=e.from)&&(!e.to||ws<e.to);}
+// Equipe da semana, sempre ordenada por horário: início Seg–Sex, início do sábado e nome
+function shiftKey(e,ws){
+  const a=empWdShift(e.id,ws),b=empSatSlot(e.id,ws);
+  return(a?a.start:'99:99')+'|'+(a?a.end:'')+'|'+(b?b.start:'99:99')+'|'+e.name.toLowerCase();
+}
+function sortByShift(list,ws){return list.slice().sort((x,y)=>shiftKey(x,ws).localeCompare(shiftKey(y,ws),'pt-BR'));}
+function teamW(ws){return sortByShift(S.team.filter(e=>activeIn(e,ws)),ws);}
+// Todos os colaboradores para listas/filtros: quem está na equipe por horário, ex-colaboradores no fim
+function teamOrdered(ws){
+  ws=ws||CWS;
+  const refW=e=>e.from&&e.from>ws?e.from:ws;
+  const cur=S.team.filter(e=>!e.to||e.to>ws).sort((x,y)=>shiftKey(x,refW(x)).localeCompare(shiftKey(y,refW(y)),'pt-BR'));
+  const old=S.team.filter(e=>e.to&&e.to<=ws).sort((x,y)=>x.name.localeCompare(y.name,'pt-BR'));
+  return cur.concat(old);
+}
+function refreshEMP(ws){EMP=teamW(ws||CWS);}
+function fe(id){return S.team.find(e=>e.id===id);}
+
+// ================================================================
+// ROTATION ENGINE
+// ================================================================
+function slotDef(kind,id){return S.slotDefs[kind][id]||null;}
+function baseAnchor(kind){return{order:defOrder(kind),pos:kind==='wd'?WD_BASE:SAT_BASE};}
+// Âncora mais recente com data <= ws (ou a base). Cada âncora guarda a ORDEM do ciclo e a posição de cada pessoa.
+function anchorFor(kind,ws){
+  const list=S.anchors[kind]||{};
+  const ks=Object.keys(list).filter(k=>k<=ws).sort();
+  if(ks.length){const k=ks[ks.length-1];return{k,order:list[k].order,pos:list[k].pos};}
+  const b=baseAnchor(kind);
+  return{k:BASE_WK,order:b.order,pos:b.pos};
+}
+function orderAt(kind,ws){return anchorFor(kind,ws).order;}
+function slotsInOrder(kind,ws){return orderAt(kind,ws).map(id=>slotDef(kind,id)).filter(Boolean);}
+// id do horário da pessoa na semana (edição pontual > rodízio a partir da âncora)
+function empSlotId(kind,empId,ws,force){
+  const e=fe(empId);if(!e)return null;
+  if(!force&&!activeIn(e,ws))return null;
+  const ov=S.overrides[ws]?.[kind]?.[empId];
+  if(ov&&slotDef(kind,ov))return ov;
+  const a=anchorFor(kind,ws),p=a.pos[empId];
+  if(p===undefined||!a.order.length)return null;
+  return a.order[safeMod(p+woff(ws)-woff(a.k),a.order.length)];
+}
+function empWdShift(empId,ws){const id=empSlotId('wd',empId,ws);return id?slotDef('wd',id):null;}
+function empSatSlot(empId,ws){const id=empSlotId('sat',empId,ws);return id?slotDef('sat',id):null;}
+
+// Aplica uma edição. changes = {empId: slotId}
+// propagate=true  → vira âncora e o rodízio continua dali em diante
+// propagate=false → vale só para esta semana
+function applyPosEdit(kind,ws,changes,propagate){
+  if(!propagate){
+    if(!S.overrides[ws])S.overrides[ws]={wd:{},sat:{}};
+    if(!S.overrides[ws][kind])S.overrides[ws][kind]={};
+    Object.entries(changes).forEach(([id,sid])=>{S.overrides[ws][kind][id]=sid;});
+    return;
+  }
+  const a=anchorFor(kind,ws),pos={};
+  teamW(ws).forEach(e=>{
+    const sid=changes[e.id]!==undefined?changes[e.id]:empSlotId(kind,e.id,ws);
+    const i=sid?a.order.indexOf(sid):-1;
+    if(i>=0)pos[e.id]=i;
+  });
+  Object.keys(S.anchors[kind]).forEach(k=>{if(k>=ws)delete S.anchors[kind][k];});
+  S.anchors[kind][ws]={order:a.order,pos};
+  Object.keys(S.overrides).forEach(k=>{if(k>=ws&&S.overrides[k][kind])S.overrides[k][kind]={};});
+  rebuildFrom(nws(ws),[kind]); // reaplica entradas/saídas agendadas para depois
+}
+
+// ---- Entradas e saídas ----------------------------------------------------
+// Escolhe onde encaixar o novo horário no ciclo: evita vizinhos com o mesmo início e fica longe dos iguais
+function insertSlot(kind,order,newId){
+  const st=id=>slotDef(kind,id).start,ns=st(newId),n=order.length;
+  if(n===0)return[newId];
+  let best=null;
+  for(let i=0;i<=n;i++){
+    const prev=order[(i-1+n)%n],next=order[i%n];
+    const bad=(st(prev)===ns?1:0)+(st(next)===ns?1:0);
+    const t=order.slice(0,i).concat([newId],order.slice(i));
+    let md=99;
+    t.forEach((id,j)=>{if(id!==newId&&st(id)===ns){const d=Math.abs(j-i);md=Math.min(md,d,t.length-d);}});
+    if(!best||bad<best.bad||(bad===best.bad&&md>best.md))best={i,bad,md};
+  }
+  const out=order.slice();out.splice(best.i,0,newId);return out;
+}
+// ---- Regra de composição por tamanho da equipe ----------------------------
+// Seg–Sex: 07h sempre 1 pessoa. Base de 7 = 1-2-2-2 (07/08/10/12). Cada pessoa nova entra em 08h → 10h → 12h → 08h ...
+// Sábado: base de 7 = 08h×2, 10h×2, 14h×1, 16h×2. A 8ª entra às 14h, depois 08h → 10h → 14h ... (o 16h nunca recebe novos)
+// Saída: ordem inversa da entrada.
+const WD_CYCLE=['08:00','10:00','12:00'];
+const SAT_CYCLE=['14:00','08:00','10:00'];
+function cycleOf(kind){return kind==='wd'?WD_CYCLE:SAT_CYCLE;}
+function typeFor(kind,start){return(kind==='wd'?WD_TYPES:SAT_TYPES).find(t=>t.start===start);}
+function baseCounts(kind){const c={};(kind==='wd'?DEF_WD:DEF_SAT).forEach(s=>{c[s.start]=(c[s.start]||0)+1;});return c;}
+function compFor(kind,N){ // quantas pessoas por horário de início para uma equipe de N
+  const c=baseCounts(kind),cyc=cycleOf(kind);
+  if(N>=7){for(let i=0;i<N-7;i++)c[cyc[i%3]]++;}
+  else{for(let j=0;j<7-N;j++){const s=cyc[safeMod(-1-j,3)];c[s]=Math.max(0,c[s]-1);}}
+  return c;
+}
+function countsOf(kind,order){const c={};order.forEach(id=>{const d=slotDef(kind,id);if(d)c[d.start]=(c[d.start]||0)+1;});return c;}
+function startForHire(kind,order){
+  const cur=countsOf(kind,order),want=compFor(kind,order.length+1);
+  return Object.keys(want).find(s=>(want[s]||0)>(cur[s]||0))||cycleOf(kind)[Math.max(0,order.length-7)%3];
+}
+function startForLeave(kind,order,ownStart){
+  const cur=countsOf(kind,order),want=compFor(kind,order.length-1);
+  return Object.keys(cur).find(s=>(cur[s]||0)>(want[s]||0))||ownStart;
+}
+// Garante um horário (slot) do tipo certo para a entrada
+function ensureHireSlot(ev,kind,start){
+  const f=kind==='wd'?'wdSlot':'satSlot',d=ev[f]&&slotDef(kind,ev[f]);
+  if(d&&d.start===start)return ev[f];
+  const id=newSlotId(kind),t=typeFor(kind,start);
+  S.slotDefs[kind][id]=kind==='wd'?{id,n:'H'+(parseInt(id.slice(1))+1),...t}:{id,...t};
+  ev[f]=id;return id;
+}
+// Qual horário deixa de existir quando alguém sai (cur = {empId: slotId} no momento da saída)
+function planLeave(kind,order,cur,empId){
+  const own=cur[empId],ownStart=own&&slotDef(kind,own)?slotDef(kind,own).start:null;
+  const s=startForLeave(kind,order,ownStart);
+  let rem=own||null;
+  if(own&&s!==ownStart){ // escolhe, entre os horários desse início, o que menos gera vizinhos iguais no ciclo
+    let best=null;
+    order.filter(id=>slotDef(kind,id).start===s).forEach(id=>{
+      const o=order.filter(x=>x!==id);let bad=0;
+      for(let i=0;i<o.length&&o.length>1;i++)if(slotDef(kind,o[i]).start===slotDef(kind,o[(i+1)%o.length]).start)bad++;
+      if(!best||bad<best.bad)best={id,bad};
+    });
+    if(best)rem=best.id;
+  }
+  const holder=rem&&rem!==own?Object.keys(cur).find(id=>id!==empId&&cur[id]===rem)||null:null;
+  return{rem,holder,holderTo:holder?own:null};
+}
+// Aplica UM evento (entrada/saída) criando uma âncora na semana dele
+function applyEvent(ev,kinds){
+  kinds.forEach(kind=>{
+    const W=ev.week,a=anchorFor(kind,W);
+    const ovW=(S.overrides[W]&&S.overrides[W][kind])||{};
+    const cur={};
+    Object.keys(a.pos).forEach(id=>{
+      let sid=a.order[safeMod(a.pos[id]+woff(W)-woff(a.k),a.order.length)];
+      if(ovW[id]&&a.order.includes(ovW[id]))sid=ovW[id];
+      cur[id]=sid;
+    });
+    let order=a.order.slice();const pos={};
+    if(ev.type==='hire'){
+      const nid=ensureHireSlot(ev,kind,startForHire(kind,order));
+      order=insertSlot(kind,order,nid);
+      Object.keys(cur).forEach(id=>{pos[id]=order.indexOf(cur[id]);});
+      pos[ev.empId]=order.indexOf(nid);
+    }else{
+      const plan=planLeave(kind,order,cur,ev.empId),rem=plan.rem;
+      if(plan.holder)cur[plan.holder]=plan.holderTo; // quem estava no horário que deixa de existir assume o de quem saiu
+      ev[kind==='wd'?'wdRemove':'satRemove']=rem;
+      order=order.filter(id=>id!==rem);
+      delete cur[ev.empId];
+      Object.keys(cur).forEach(id=>{pos[id]=order.indexOf(cur[id]);});
+    }
+    Object.keys(pos).forEach(id=>{if(pos[id]<0)delete pos[id];});
+    S.anchors[kind][W]={order,pos};
+  });
+}
+// Apaga as âncoras a partir de W e reaplica, em ordem, todas as entradas/saídas dessa data em diante
+function rebuildFrom(W,kinds){
+  kinds=kinds||['wd','sat'];
+  kinds.forEach(k=>{Object.keys(S.anchors[k]).forEach(w=>{if(w>=W)delete S.anchors[k][w];});});
+  S.events.filter(e=>e.week>=W)
+    .sort((a,b)=>a.week.localeCompare(b.week)||a.at.localeCompare(b.at))
+    .forEach(ev=>applyEvent(ev,kinds));
+  Object.keys(S.overrides).forEach(w=>{if(w>=W)kinds.forEach(k=>{if(S.overrides[w][k])S.overrides[w][k]={};});});
+}
+function afterTeamChange(W){
+  rebuildFrom(W);
+  S.oncall=S.oncall.filter(h=>!(h.auto&&h.date>=sun(W))); // plantões automáticos dali em diante são refeitos
+  autoConfirmOncall(16);
+  rebuildPreOncallLeaves();
+  refreshEMP(CWS);
+  saveS();
+}
+function newSlotId(kind){
+  const p=kind==='wd'?'w':'s';
+  const nums=Object.keys(S.slotDefs[kind]).map(k=>parseInt(k.slice(1))||0);
+  return p+(Math.max(-1,...nums)+1);
+}
+function nextEmpId(){
+  const nums=S.team.map(e=>parseInt(String(e.id).slice(1))||0);
+  return'e'+(Math.max(0,...nums)+1);
+}
+function cleanName(s){return String(s||'').replace(/[<>&"'`\\]/g,'').replace(/\s+/g,' ').trim().slice(0,30);}
+function makeInitials(name){
+  const w=name.split(' ').filter(Boolean);
+  return(w.length>1?w[0][0]+w[1][0]:name.slice(0,2)).toUpperCase();
+}
+// Nova pessoa entra na escala a partir da semana "week"
+function addHire({name,week,queue}){
+  const id=nextEmpId();
+  let ocBase=null;
+  if(queue==='end'){ // entra no fim da fila de plantão: conta = média da equipe
+    const{cnt}=ocCounts(S.oncall.filter(h=>h.date<sun(week))),t=teamW(week); // só o histórico anterior à entrada
+    const avg=t.length?Math.round(t.reduce((s,e)=>s+(cnt[e.id]||0),0)/t.length):0;
+    ocBase={cnt:Math.max(1,avg),last:sun(pws(week))};
+  }
+  S.team.push({id,name,initials:makeInitials(name),color:nextColor(),from:week,to:null,ocBase});
+  S.events.push({id:gid(),type:'hire',week,empId:id,wdSlot:null,satSlot:null,at:new Date().toISOString()});
+  addLog('team_add',`Novo colaborador: ${name} (a partir de ${fmtD(week)})`);
+  afterTeamChange(week);
+  return id;
+}
+// Pessoa deixa a escala a partir da semana "week" (trabalha até o domingo anterior)
+function addLeaveEvent({empId,week}){
+  const e=fe(empId);if(!e)return;
+  e.to=week;
+  // ausências futuras dessa pessoa deixam de fazer sentido
+  const dayBefore=d2s(new Date(s2d(week).getFullYear(),s2d(week).getMonth(),s2d(week).getDate()-1));
+  S.leaves=S.leaves.filter(l=>!(l.empId===empId&&l.s>=week)).map(l=>(l.empId===empId&&l.e>=week)?{...l,e:dayBefore}:l);
+  S.events.push({id:gid(),type:'leave',week,empId,wdRemove:null,satRemove:null,at:new Date().toISOString()});
+  addLog('team_remove',`Colaborador removido: ${e.name} (a partir de ${fmtD(week)})`);
+  afterTeamChange(week);
+}
+// Cancela uma entrada/saída que ainda não aconteceu
+function cancelTeamEvent(evId){
+  const ev=S.events.find(x=>x.id===evId);if(!ev)return false;
+  if(ev.week<=getCWS())return false;
+  const e=fe(ev.empId);
+  if(ev.type==='hire'){
+    S.team=S.team.filter(x=>x.id!==ev.empId);
+    S.leaves=S.leaves.filter(l=>l.empId!==ev.empId);
+    S.events=S.events.filter(x=>x.empId!==ev.empId); // inclui uma saída agendada dessa pessoa
+  }else{
+    if(e)e.to=null;
+    S.events=S.events.filter(x=>x.id!==evId);
+  }
+  addLog('team_cancel',`Mudança de equipe cancelada: ${e?e.name:'?'} (${fmtD(ev.week)})`);
+  afterTeamChange(ev.week);
+  return true;
+}
+// Resumo "07:00 ×1 · 08:00 ×2 ..." para os horários de uma lista de ids de slot
+function covSummary(kind,ids){
+  const c={};
+  ids.forEach(id=>{const d=slotDef(kind,id);if(d){const k=d.start+'–'+d.end;c[k]=(c[k]||0)+1;}});
+  return Object.keys(c).sort().map(k=>`${k} ×${c[k]}`).join(' · ')||'—';
+}
+
+// Sem "date": retorna a semana sem marcar folga. Com "date": marca folga daquele dia.
+function wdSchedule(ws,date){
+  return teamW(ws).map(emp=>{
+    const shift=empWdShift(emp.id,ws);
+    const onLeave=date?isOnLeave(emp.id,date):false;
+    return{emp,shift,onLeave};
+  });
+}
+function satSchedule(ws){
+  const s=sat(ws);
+  return teamW(ws).map(emp=>({emp,slot:empSatSlot(emp.id,ws),onLeave:isOnLeave(emp.id,s)}));
+}
+
+// ================================================================
+// ONCALL ENGINE
+// ================================================================
+// oncallArr param lets the rotation be simulated forward (previews) without touching the real S.oncall
+function ocCounts(oncallArr){
+  oncallArr=oncallArr||S.oncall;
+  const cnt={},lst={};
+  S.team.forEach(e=>{cnt[e.id]=e.ocBase?e.ocBase.cnt:0;lst[e.id]=e.ocBase?e.ocBase.last:null;});
+  oncallArr.forEach(h=>h.emps.forEach(id=>{cnt[id]=(cnt[id]||0)+1;if(!lst[id]||h.date>lst[id])lst[id]=h.date;}));
+  return{cnt,lst};
+}
+function sortedOCQueue(exclude=[],oncallArr,ws){
+  const{cnt,lst}=ocCounts(oncallArr);
+  return teamW(ws||CWS).filter(e=>!exclude.includes(e.id)).sort((a,b)=>{
+    if(cnt[a.id]===0&&cnt[b.id]>0)return-1;
+    if(cnt[b.id]===0&&cnt[a.id]>0)return 1;
+    const da=lst[a.id]?s2d(lst[a.id]):new Date(0);
+    const db=lst[b.id]?s2d(lst[b.id]):new Date(0);
+    if(da<db)return-1;if(da>db)return 1;
+    return cnt[a.id]-cnt[b.id];
+  });
+}
+// Pedro Lucas só pode ser escalado junto com um dos parceiros ativos, alternando a cada vez que ele aparece
+function pedroPartner(oncallArr,team){
+  oncallArr=oncallArr||S.oncall;
+  const partners=PL_PARTNERS.filter(id=>team.some(e=>e.id===id));
+  if(!partners.length)return null;
+  const plHist=oncallArr.filter(h=>h.emps.includes(PL_ID)).sort((a,b)=>b.date.localeCompare(a.date));
+  const lastPL=plHist[0];
+  if(!lastPL)return partners[0];
+  const lp=lastPL.emps.find(id=>id!==PL_ID);
+  const i=PL_PARTNERS.indexOf(lp),n=PL_PARTNERS.length;
+  for(let k=1;k<=n;k++){const c=PL_PARTNERS[safeMod(i+k,n)];if(partners.includes(c))return c;}
+  return partners[0];
+}
+function nextOC(sundayDate,oncallArr){
+  const ws=wsOf(sundayDate),team=teamW(ws);
+  // Usa só o histórico ANTERIOR à data (evita influência de semanas futuras)
+  oncallArr=(oncallArr||S.oncall).filter(h=>h.date<sundayDate);
+  const leaves=team.filter(e=>isOnLeave(e.id,sundayDate)).map(e=>e.id);
+  const queue=sortedOCQueue(leaves,oncallArr,ws);
+  if(queue.length===0)return[];
+
+  const count=S.config.oncallCount||2;
+  const plIn=team.some(e=>e.id===PL_ID);
+  const partnersIn=PL_PARTNERS.some(id=>team.some(e=>e.id===id));
+  const restricted=plIn&&partnersIn; // sem parceiros na equipe, o Pedro entra no rodízio normal
+  let sel=null;
+
+  // Só forma dupla com o Pedro quando é realmente a vez dele (1º na fila de justiça)
+  if(restricted&&queue[0]&&queue[0].id===PL_ID){
+    const partner=pedroPartner(oncallArr,team);
+    const free=PL_PARTNERS.filter(id=>team.some(e=>e.id===id)&&!leaves.includes(id));
+    if(partner&&!leaves.includes(partner))sel=[PL_ID,partner];
+    else if(free.length)sel=[PL_ID,free[0]];
+    // se todos os parceiros estiverem de folga, cai para o rodízio normal (Pedro aguarda a próxima vez)
+  }
+
+  if(!sel){
+    const normalQueue=restricted?queue.filter(e=>e.id!==PL_ID):queue;
+    sel=[];
+    for(const e of normalQueue){if(sel.length>=count)break;sel.push(e.id);}
+  }
+
+  // Nunca repetir a mesma dupla da semana anterior
+  const prev=[...oncallArr].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0];
+  if(prev){
+    const prevSet=[...prev.emps].sort().join(',');
+    const curSet=[...sel].sort().join(',');
+    if(prevSet===curSet){
+      const pool=sortedOCQueue([...leaves,...sel],oncallArr,ws).filter(e=>!(restricted&&e.id===PL_ID));
+      if(pool.length>0)sel=[sel[0],pool[0].id];
+    }
+  }
+  return sel;
+}
+// Projeta as próximas N semanas de plantão sem alterar o estado real (usa registros já confirmados quando existem)
+function projectOC(n,fromDate){
+  const sim=JSON.parse(JSON.stringify(S.oncall));
+  let date=fromDate||sun(CWS);
+  const out=[];
+  for(let i=0;i<n;i++){
+    const existing=sim.find(h=>h.date===date);
+    let sel,confirmed;
+    if(existing){sel=existing.emps;confirmed=true;}
+    else{sel=nextOC(date,sim);sim.push({date,emps:sel});confirmed=false;}
+    out.push({date,emps:sel,confirmed,auto:!!(existing&&existing.auto)});
+    date=nws(date);
+  }
+  return out;
+}
+function autoPreOncallLeaves(sundayDate,empIds){
+  // Quinta = domingo - 3 dias | Sexta = domingo - 2 dias
+  const sunD=s2d(sundayDate);
+  const thuD=new Date(sunD);thuD.setDate(sunD.getDate()-3);
+  const friD=new Date(sunD);friD.setDate(sunD.getDate()-2);
+  const thu=d2s(thuD),fri=d2s(friD);
+  // Remove folgas pré-plantão antigas dessa semana
+  S.leaves=S.leaves.filter(l=>!(l.type==='pre_oncall'&&(l.s===thu||l.s===fri)));
+  // Agente 1 → Quinta | Agente 2 → Sexta
+  if(empIds[0])S.leaves.push({id:gid(),empId:empIds[0],type:'pre_oncall',s:thu,e:thu,
+    reason:`Folga pré-plantão — Domingo ${fmtD(sundayDate)}`,at:new Date().toISOString(),auto:true});
+  if(empIds[1])S.leaves.push({id:gid(),empId:empIds[1],type:'pre_oncall',s:fri,e:fri,
+    reason:`Folga pré-plantão — Domingo ${fmtD(sundayDate)}`,at:new Date().toISOString(),auto:true});
+}
+function rebuildPreOncallLeaves(){
+  S.leaves=S.leaves.filter(l=>l.type!=='pre_oncall');
+  S.oncall.forEach(h=>autoPreOncallLeaves(h.date,h.emps));
+}
+// Apaga os plantões automáticos posteriores e gera de novo a partir da edição
+function recalcOncallAfter(date){
+  S.oncall=S.oncall.filter(h=>!(h.auto&&h.date>date));
+  autoConfirmOncall(16);
+  rebuildPreOncallLeaves();
+}
+function saveOC(date,empIds){
+  S.oncall=S.oncall.filter(h=>h.date!==date);
+  S.oncall.push({date,emps:empIds}); // sem "auto" = confirmado manualmente
+  S.oncall.sort((a,b)=>a.date.localeCompare(b.date));
+  recalcOncallAfter(date);
+  saveS();
+  addLog('oncall',`Plantão ${fmtD(date)}: ${empIds.map(id=>fe(id)?.name).join(', ')} (semanas seguintes recalculadas)`);
+}
+
+// ================================================================
+// LEAVE UTILS
+// ================================================================
+function isOnLeave(empId,dateStr){return S.leaves.some(l=>l.empId===empId&&dateStr>=l.s&&dateStr<=l.e);}
+function leaveType(empId,dateStr){const l=S.leaves.find(l=>l.empId===empId&&dateStr>=l.s&&dateStr<=l.e);return l?l.type:null;}
+function leaveLbl(t){return{folga:'Folga',ferias:'Férias',afastamento:'Afastamento',compensacao:'Compensação',pre_oncall:'🌙 Folga Pré-Plantão'}[t]||t||'Ausência';}
+
+// ================================================================
+// CONFLICT DETECTOR
+// ================================================================
+function conflicts(ws){
+  const res=[],sn=sun(ws),sa=sat(ws),noc=nextOC(sn),team=teamW(ws);
+  const ocRec=S.oncall.find(h=>h.date===sn);
+  const ocEmps=ocRec?ocRec.emps:noc;
+
+  ocEmps.forEach(eid=>{
+    const e=fe(eid);if(!e)return;
+    if(!activeIn(e,ws)){res.push({type:'error',msg:`${e.name} não está mais na equipe, mas está no plantão de ${fmtD(sn)}`,det:'Edite o plantão e escolha outra pessoa'});return;}
+    if(isOnLeave(eid,sn)){res.push({type:'error',msg:`${e.name} está de folga no domingo ${fmtD(sn)}`,det:'Não pode ser escalado para plantão'});}
+    const ss=empSatSlot(eid,ws);
+    if(ss&&!isOnLeave(eid,sa)){
+      const satEndH=parseInt(ss.end);
+      const rest=(24-satEndH)+8; // assume oncall starts 08h
+      if(rest<(S.config.minRest||10)){res.push({type:'warning',msg:`${e.name} trabalha até ${ss.end} no sábado e tem plantão às 08h`,det:`Descanso de ${rest}h (mín: ${S.config.minRest||10}h)`});}
+    }
+  });
+
+  // Regra de faixas Seg–Sex: 07h sempre com 1 pessoa; as demais faixas não podem ficar vazias
+  const cnt0={};team.forEach(e=>{const s=empWdShift(e.id,ws);if(s)cnt0[s.start]=(cnt0[s.start]||0)+1;});
+  if((cnt0['07:00']||0)!==1)res.push({type:'warning',msg:`O horário das 07:00 deveria ter 1 pessoa (tem ${cnt0['07:00']||0})`,det:'Revise os horários desta semana'});
+  ['08:00','10:00','12:00'].forEach(st=>{if(!cnt0[st])res.push({type:'warning',msg:`Ninguém escalado no horário das ${st} (Seg–Sex)`,det:'Equipe reduzida — revise os horários desta semana'});});
+
+  wkdays(ws).forEach(d=>{team.forEach(e=>{if(isOnLeave(e.id,d)){res.push({type:'info',msg:`${e.name} — ${dayN(d)} ${fmtD(d)}`,det:`${leaveLbl(leaveType(e.id,d))}`});}});});
+  return res;
+}
+
+// ================================================================
+// HELPERS
+// ================================================================
+function gid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+// ---- Paleta de cores dos colaboradores (20) ----
+const PALETTE=[
+  {n:'Azul',c:'#3b82f6'},{n:'Verde',c:'#22c55e'},{n:'Amarelo',c:'#facc15'},{n:'Roxo',c:'#a855f7'},{n:'Rosa',c:'#ec4899'},
+  {n:'Ciano',c:'#22d3ee'},{n:'Laranja',c:'#f97316'},{n:'Vermelho',c:'#dc2626'},{n:'Lima',c:'#bef264'},{n:'Verde-água',c:'#0d9488'},
+  {n:'Marrom claro',c:'#b9835a'},{n:'Prata',c:'#e2e8f0'},{n:'Índigo',c:'#4f46e5'},{n:'Rosa claro',c:'#fda4af'},{n:'Oliva',c:'#8a8a1f'},
+  {n:'Vinho',c:'#9f1239'},{n:'Lavanda',c:'#c4b5fd'},{n:'Magenta',c:'#d946ef'},{n:'Cinza',c:'#6b7280'},{n:'Petróleo',c:'#0e7490'}
+];
+function hexA(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;}
+function inkOn(h){const n=parseInt(h.slice(1),16),f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);};const L=.2126*f(n>>16)+.7152*f((n>>8)&255)+.0722*f(n&255);return L>.35?'#111827':'#ffffff';}
+function injectPalette(){
+  let st=document.getElementById('palette-css');
+  if(!st){st=document.createElement('style');st.id='palette-css';document.head.appendChild(st);}
+  st.textContent=':root{'+PALETTE.map((x,i)=>`--c${i}:${x.c};--c${i}b:${hexA(x.c,.14)};`).join('')+'}'+
+    PALETTE.map((x,i)=>`.av${i}{background:var(--c${i});color:${inkOn(x.c)}}`).join('')+
+    '.av-btn{cursor:pointer;border-radius:50%;display:inline-flex;transition:transform .15s,box-shadow .15s}.av-btn:hover{transform:scale(1.1);box-shadow:0 0 0 2px var(--bd)}'+
+    '.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:300px}'+
+    '.sw{width:100%;aspect-ratio:1;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem;padding:0;transition:transform .12s}'+
+    '.sw:hover{transform:scale(1.12)}.sw.sel{border-color:var(--tx,#fff);box-shadow:0 0 0 2px var(--sw)}.sw span{text-shadow:0 1px 2px rgba(0,0,0,.5)}';
+}
+function colorOf(emp){const c=parseInt(emp&&emp.color,10);return Number.isFinite(c)&&c>=0&&c<PALETTE.length?c:0;}
+// cor menos usada entre quem está na equipe (a primeira livre, se houver)
+function nextColor(){
+  const use=PALETTE.map(()=>0);S.team.filter(e=>!e.to||e.to>CWS).forEach(e=>use[colorOf(e)]++);
+  return use.indexOf(Math.min(...use));
+}
+function setColor(empId,idx){
+  const e=S.team.find(x=>x.id===empId);if(!e||!(idx>=0&&idx<PALETTE.length))return;
+  e.color=idx;saveS();
+}
+
+function av(emp,size=''){
+  return`<div class="av av${colorOf(emp)} ${size}">${emp.initials}</div>`;
+}
+function chip(emp){
+  return`<div class="chip">${av(emp,'av-sm')}<span>${emp.name}</span></div>`;
+}
+function shiftDisp(sh){
+  if(!sh)return'<span class="tm">—</span>';
+  return`<div class="st">${sh.start} – ${sh.end}</div><div class="sb">☕ ${sh.bkS} – ${sh.bkE}</div>`;
+}
+
+// WhatsApp
+function dailyWDAssignments(ws,date){
+  const base=teamW(ws).map(emp=>({emp,shift:empWdShift(emp.id,ws)})).filter(x=>x.shift);
+  const absent=new Set(base.filter(x=>isOnLeave(x.emp.id,date)).map(x=>x.emp.id));
+  const active=base.filter(x=>!absent.has(x.emp.id));
+  const result=active.map(x=>({emp:x.emp,shift:x.shift,coverage:false}));
+  const absentEmps=base.filter(x=>absent.has(x.emp.id)).map(x=>x.emp);
+  if(!absent.size)return{rows:result,absent:absentEmps,uncovered:[]};
+
+  const count={};
+  active.forEach(x=>{count[x.shift.start]=(count[x.shift.start]||0)+1;});
+  const used=new Set(),uncovered=[];
+  const weekSunday=sun(ws);
+  const oncall=S.oncall.find(h=>h.date===weekSunday);
+  const oncallIds=new Set(oncall?.emps||[]);
+
+  const assign=(off,donor)=>{
+    if(!donor)return false;
+    if(used.has(donor.emp.id)||oncallIds.has(donor.emp.id)||donor.shift.start==='12:00')return false;
+    used.add(donor.emp.id);
+    count[donor.shift.start]=(count[donor.shift.start]||0)-1;
+    count[off.shift.start]=(count[off.shift.start]||0)+1;
+    const row=result.find(r=>r.emp.id===donor.emp.id);
+    if(row){row.shift=off.shift;row.coverage=true;row.covering=off.emp.name;return true;}
+    return false;
+  };
+
+  [...base].filter(x=>absent.has(x.emp.id)).forEach(off=>{
+    // Se houver cobertura definida manualmente, ela tem prioridade.
+    const manualId=S.coverage?.[date]?.[off.emp.id] || null;
+    const manual=manualId?active.find(x=>x.emp.id===manualId):null;
+    if(manual && assign(off,manual))return;
+
+    // Regra automática: nunca usar 12:00–22:00 e nunca usar plantonista.
+    const targetStart=off.shift.start;
+    const donor=active.filter(x=>
+        !used.has(x.emp.id) &&
+        !oncallIds.has(x.emp.id) &&
+        x.shift.start!=='12:00' &&
+        (count[x.shift.start]||0)>=2
+      )
+      .sort((a,b)=>{
+        const as=a.shift.start===targetStart?0:1, bs=b.shift.start===targetStart?0:1;
+        return as-bs || a.shift.start.localeCompare(b.shift.start) || a.emp.name.localeCompare(b.emp.name);
+      })[0];
+    if(!assign(off,donor))uncovered.push(off.emp);
+  });
+  return{rows:result.sort((a,b)=>a.shift.start.localeCompare(b.shift.start)||a.shift.end.localeCompare(b.shift.end)||a.emp.name.localeCompare(b.emp.name)),absent:absentEmps,uncovered};
+}
+
+function dailySatAssignments(ws,date){
+  const base=teamW(ws).map(emp=>({emp,slot:empSatSlot(emp.id,ws)})).filter(x=>x.slot);
+  const absent=new Set(base.filter(x=>isOnLeave(x.emp.id,date)).map(x=>x.emp.id));
+  const active=base.filter(x=>!absent.has(x.emp.id));
+  const result=active.map(x=>({emp:x.emp,slot:x.slot,coverage:false}));
+  const absentEmps=base.filter(x=>absent.has(x.emp.id)).map(x=>x.emp);
+  if(!absent.size)return{rows:result,absent:absentEmps,uncovered:[]};
+
+  const count={};
+  active.forEach(x=>{count[x.slot.start]=(count[x.slot.start]||0)+1;});
+  const used=new Set(),uncovered=[];
+  [...base].filter(x=>absent.has(x.emp.id)).forEach(off=>{
+    const targetStart=off.slot.start;
+    const donor=active.filter(x=>!used.has(x.emp.id)&&(count[x.slot.start]||0)>=2)
+      .sort((a,b)=>{
+        const as=a.slot.start===targetStart?0:1, bs=b.slot.start===targetStart?0:1;
+        return as-bs || a.emp.name.localeCompare(b.emp.name);
+      })[0];
+    if(!donor){uncovered.push(off.emp);return;}
+    used.add(donor.emp.id);
+    count[donor.slot.start]=(count[donor.slot.start]||0)-1;
+    count[targetStart]=(count[targetStart]||0)+1;
+    const row=result.find(r=>r.emp.id===donor.emp.id);
+    if(row){row.slot=off.slot;row.coverage=true;row.covering=off.emp.name;}
+  });
+  return{rows:result.sort((a,b)=>a.slot.start.localeCompare(b.slot.start)||a.emp.name.localeCompare(b.emp.name)),absent:absentEmps,uncovered};
+}
+
+function genWA(ws){
+  const days=wkdays(ws),sa=sat(ws),sn=sun(ws);
+  const oc=S.oncall.find(h=>h.date===sn);
+  const pad=(s,n)=>String(s).padEnd(n);
+  const SEP='━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const dayNames=['SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA'];
+  let m=`📡 *ESCALA SUPORTE N1*\n📆 *${fmtD(ws)} a ${fmtD(sn)}*\n`;
+
+  days.forEach((date,i)=>{
+    const sch=dailyWDAssignments(ws,date);
+    m+=`\n${SEP}\n📅 *${dayNames[i]} — ${fmtD(date)}*\n${SEP}\n`;
+    m+='```\n';
+    m+=`${pad('HORÁRIO',15)} ${pad('INTERVALO',11)} AGENTE\n`;
+    m+=`${'─'.repeat(42)}\n`;
+    sch.rows.slice().sort((x,y)=>x.shift.start.localeCompare(y.shift.start)||x.shift.end.localeCompare(y.shift.end)||x.emp.name.localeCompare(y.emp.name,'pt-BR')).forEach(({emp,shift,coverage,covering})=>{
+      const tag=coverage?` ↪ cobre ${covering}`:'';
+      m+=`${pad(shift.start+'–'+shift.end,15)} ${pad(shift.bkS+'–'+shift.bkE,11)} ${emp.name}${tag}\n`;
+    });
+    m+='```\n';
+    if(sch.absent.length)m+=`🌙 *Folga:* ${sch.absent.map(e=>e.name).join(', ')}\n`;
+    if(sch.uncovered.length)m+=`⚠️ *Sem cobertura automática:* ${sch.uncovered.map(e=>e.name).join(', ')}\n`;
+  });
+
+  const satSch=dailySatAssignments(ws,sa);
+  m+=`\n${SEP}\n📋 *SÁBADO — ${fmtD(sa)}*\n${SEP}\n`;
+  m+='```\n';
+  m+=`${pad('HORÁRIO',15)} AGENTE\n${'─'.repeat(30)}\n`;
+  const sgrp={};
+  satSch.rows.forEach(({emp,slot,coverage,covering})=>{
+    const k=`${slot.start}–${slot.end}`;
+    if(!sgrp[k])sgrp[k]={slot,emps:[]};
+    sgrp[k].emps.push(coverage?`${emp.name} ↪ cobre ${covering}`:emp.name);
+  });
+  Object.values(sgrp).sort((a,b)=>a.slot.start.localeCompare(b.slot.start)).forEach(g=>m+=`${pad(g.slot.start+'–'+g.slot.end,15)} ${g.emps.join(', ')}\n`);
+  m+='```\n';
+  if(satSch.absent.length)m+=`🌙 *Folga:* ${satSch.absent.map(e=>e.name).join(', ')}\n`;
+  if(satSch.uncovered.length)m+=`⚠️ *Sem cobertura automática:* ${satSch.uncovered.map(e=>e.name).join(', ')}\n`;
+
+  if(oc){
+    m+=`\n${SEP}\n🌙 *DOMINGO — PLANTÃO — ${fmtD(sn)}*\n${SEP}\n`;
+    m+='```\n';
+    m+=`${pad('HORÁRIO',15)} AGENTE\n${'─'.repeat(30)}\n`;
+    oc.emps.map(id=>fe(id)).filter(Boolean).sort((x,y)=>x.name.localeCompare(y.name,'pt-BR')).forEach(e=>{if(e)m+=`${pad('08:00–18:00',15)} ${e.name}\n`;});
+    m+='```\n';
+  }
+  return m.trim();
+}
+
+// ================================================================
+// COBERTURA MANUAL + EXPORTAÇÃO PARA EXCEL
+// ================================================================
+function weekOncallIds(ws){
+  const sn=sun(ws);
+  const rec=S.oncall.find(h=>h.date===sn);
+  return new Set(rec?rec.emps:nextOC(sn));
+}
+
+function eligibleCoverageDonors(ws,date,absentId,used=new Set()){
+  const oncall=weekOncallIds(ws),team=teamW(ws);
+  return team.map(emp=>({emp,shift:empWdShift(emp.id,ws)}))
+    .filter(x=>x.emp.id!==absentId)
+    .filter(x=>!isOnLeave(x.emp.id,date))
+    .filter(x=>!oncall.has(x.emp.id))
+    .filter(x=>x.shift && x.shift.start!=='12:00')
+    .filter(x=>{
+      const sameStart=team.map(e=>empWdShift(e.id,ws)).filter(sh=>sh && sh.start===x.shift.start).length;
+      return sameStart>=2;
+    })
+    .filter(x=>!used.has(x.emp.id))
+    .sort((a,b)=>a.shift.start.localeCompare(b.shift.start)||a.emp.name.localeCompare(b.emp.name));
+}
+
+function getManualCoverage(ws,date,absentId){
+  return S.coverage?.[date]?.[absentId] || null;
+}
+
+function editCoverage(ws,date){
+  const absents=teamW(ws).filter(e=>isOnLeave(e.id,date));
+  if(!absents.length){toast('Não há folga neste dia.','info');return;}
+  const used=new Set();
+  const fields=absents.map(abs=>{
+    const current=getManualCoverage(ws,date,abs.id);
+    const donors=eligibleCoverageDonors(ws,date,abs.id,used);
+    const validCurrent=donors.some(d=>d.emp.id===current);
+    if(validCurrent)used.add(current);
+    return `<div class="fg">
+      <label class="fl">🌙 ${abs.name} — quem cobre?</label>
+      <select class="fi cov-sel" data-absent="${abs.id}">
+        <option value="">Automático</option>
+        ${donors.map(d=>`<option value="${d.emp.id}" ${d.emp.id===current?'selected':''}>${d.emp.name} — ${d.shift.start}–${d.shift.end}</option>`).join('')}
+      </select>
+      <div class="txs tm" style="margin-top:5px">Não pode ser plantonista da semana, não pode estar de folga, não pode ser do horário 12:00–22:00 e a troca não pode deixar o horário original vazio.</div>
+    </div>`;
+  }).join('');
+  openModal(`Editar Cobertura — ${dayN(date)} ${fmtD(date)}`,
+    `<p class="tsm tm mb3">Escolha manualmente quem fará a cobertura. Se deixar “Automático”, o sistema mantém a seleção automática.</p>${fields}`,
+    ()=>{
+      if(!S.coverage)S.coverage={};
+      if(!S.coverage[date])S.coverage[date]={};
+      document.querySelectorAll('.cov-sel').forEach(sel=>{
+        const aid=sel.dataset.absent;
+        if(sel.value)S.coverage[date][aid]=sel.value;
+        else delete S.coverage[date][aid];
+      });
+      saveS();
+      addLog('coverage_edit',`Cobertura editada em ${fmtD(date)}`);
+      toast('Cobertura atualizada!','success');
+      navigate('escala');
+    },'Salvar cobertura');
+}
+
+function loadSheetJS(){
+  return new Promise((resolve,reject)=>{
+    if(window.XLSX)return resolve();
+    const sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    sc.onload=()=>resolve(); sc.onerror=()=>reject(new Error('Não foi possível carregar o gerador de Excel.'));
+    document.head.appendChild(sc);
+  });
+}
+
+async function exportXLSX(ws){
+  try{await loadSheetJS();}catch(e){toast('Excel indisponível. Use o CSV.','error');return;}
+  const wb=XLSX.utils.book_new();
+  const team=teamW(ws);
+
+  // TABELA 1 — HORÁRIOS E AGENTES
+  const horarioRows=[['HORÁRIO','INTERVALO','AGENTES']];
+  const grupos={};
+  team.forEach(emp=>{
+    const shift=empWdShift(emp.id,ws);
+    if(!shift)return;
+    const key=`${shift.start}|${shift.end}|${shift.bkS}|${shift.bkE}`;
+    if(!grupos[key])grupos[key]={shift,emps:[]};
+    grupos[key].emps.push(emp.name);
+  });
+  Object.values(grupos)
+    .sort((a,b)=>a.shift.start.localeCompare(b.shift.start))
+    .forEach(g=>horarioRows.push([
+      `${g.shift.start}–${g.shift.end}`,
+      `${g.shift.bkS}–${g.shift.bkE}`,
+      g.emps.sort((a,b)=>a.localeCompare(b)).join(', ')
+    ]));
+
+  const ws1=XLSX.utils.aoa_to_sheet(horarioRows);
+  ws1['!cols']=[{wch:18},{wch:18},{wch:45}];
+  ws1['!autofilter']={ref:ws1['!ref']};
+  ws1['!freeze']={xSplit:0,ySplit:1};
+  XLSX.utils.book_append_sheet(wb,ws1,'Horários');
+
+  // TABELA 2 — SOMENTE FOLGAS E COBERTURAS
+  const cov=[['DATA','DIA','QUEM FOLGA','QUEM COBRE','HORÁRIO DA COBERTURA','STATUS']];
+  wkdays(ws).forEach(date=>{
+    const sch=dailyWDAssignments(ws,date);
+    sch.absent.forEach(abs=>{
+      const row=sch.rows.find(r=>r.covering===abs.name);
+      cov.push([
+        fmtD(date),
+        dayN(date),
+        abs.name,
+        row?.emp?.name||'Sem cobertura',
+        row?.shift?`${row.shift.start}–${row.shift.end}`:'—',
+        row?.coverage?'COBERTURA DEFINIDA':'SEM COBERTURA'
+      ]);
+    });
+  });
+  if(cov.length===1)cov.push(['—','—','Nenhuma folga registrada','—','—','—']);
+
+  const ws2=XLSX.utils.aoa_to_sheet(cov);
+  ws2['!cols']=[{wch:14},{wch:14},{wch:24},{wch:24},{wch:24},{wch:24}];
+  ws2['!autofilter']={ref:ws2['!ref']};
+  ws2['!freeze']={xSplit:0,ySplit:1};
+  XLSX.utils.book_append_sheet(wb,ws2,'Folgas e Coberturas');
+
+  // TABELA 3 — PLANTÃO DA SEMANA
+  const sn=sun(ws),oc=S.oncall.find(h=>h.date===sn);
+  const plantao=[['PLANTÃO DA SEMANA','AGENTE']];
+  if(oc){
+    oc.emps.forEach(id=>{
+      const e=fe(id);if(e)plantao.push([`${fmtD(sn)} — 08:00–18:00`,e.name]);
+    });
+  }else plantao.push(['Não confirmado','—']);
+  const ws3=XLSX.utils.aoa_to_sheet(plantao);
+  ws3['!cols']=[{wch:30},{wch:25}];
+  ws3['!autofilter']={ref:ws3['!ref']};
+  ws3['!freeze']={xSplit:0,ySplit:1};
+  XLSX.utils.book_append_sheet(wb,ws3,'Plantão');
+
+  XLSX.writeFile(wb,`escala_suporte_n1_${ws}.xlsx`);
+  toast('📊 Planilha baixada em formato de tabela!','success');
+}
+// CSV export
+function exportCSV(ws){
+  const rows=[['Data','Dia','Agente','Horário','Intervalo','Tipo']];
+  wkdays(ws).forEach(date=>{
+    wdSchedule(ws,date).forEach(({emp,shift,onLeave})=>{
+      if(onLeave)rows.push([fmtD(date),dayN(date),emp.name,'Folga','—','Folga']);
+      else if(shift)rows.push([fmtD(date),dayN(date),emp.name,`${shift.start}–${shift.end}`,`${shift.bkS}–${shift.bkE}`,'Expediente']);
+    });
+  });
+  const sa=sat(ws);
+  satSchedule(ws).forEach(({emp,slot,onLeave})=>{
+    if(onLeave)rows.push([fmtD(sa),'Sábado',emp.name,'Folga','—','Folga']);
+    else if(slot)rows.push([fmtD(sa),'Sábado',emp.name,`${slot.start}–${slot.end}`,'—','Sábado']);
+  });
+  const sn=sun(ws),oc=S.oncall.find(h=>h.date===sn);
+  if(oc)oc.emps.forEach(id=>{const e=fe(id);if(e)rows.push([fmtD(sn),'Domingo',e.name,'08:00–18:00','—','Plantão']);});
+
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`escala_${ws}.csv`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+const PAGES=[
+  {id:'dashboard',  lbl:'Dashboard',    ic:'🏠',sec:'main'},
+  {id:'escala',     lbl:'Escala',       ic:'📅',sec:'main'},
+  {id:'rodizio',    lbl:'Rodízio Futuro',ic:'🔮',sec:'main'},
+  {id:'calendario', lbl:'Calendário',   ic:'📆',sec:'main'},
+  {id:'plantoes',   lbl:'Plantões',     ic:'🌙',sec:'main'},
+  {id:'folgas',     lbl:'Folgas',       ic:'🏖️',sec:'main'},
+  {id:'trocas',     lbl:'Trocas',       ic:'🔁',sec:'main'},
+  {id:'compensacoes',lbl:'Compensações',ic:'⚖️',sec:'main'},
+  {id:'equipe',     lbl:'Equipe',       ic:'👥',sec:'admin'},
+  {id:'relatorios', lbl:'Relatórios',   ic:'📊',sec:'admin'},
+  {id:'configuracoes',lbl:'Config.',    ic:'⚙️',sec:'admin'},
+];
+
+let CUR='dashboard';
+let CWS=getCWS();
+let calY=new Date().getFullYear(),calM=new Date().getMonth()+1;
+
+function buildNav(){
+  const nav=document.getElementById('sb-nav');
+  let html='',lastSec=null;
+  PAGES.forEach(p=>{
+    if(p.sec!==lastSec){
+      if(lastSec==='main')html+=`<div class="nav-sec">Gestão</div>`;
+      else if(!lastSec)html+=`<div class="nav-sec">Principal</div>`;
+      lastSec=p.sec;
+    }
+    html+=`<div class="nav-item" id="nv-${p.id}" onclick="navigate('${p.id}')" tabindex="0" role="button"><span class="nav-ic">${p.ic}</span><span>${p.lbl}</span></div>`;
+  });
+  nav.innerHTML=html;
+}
+
+function navigate(pid){
+  if(!PAGES.find(p=>p.id===pid))pid='dashboard';
+  document.getElementById('app-modal')?.remove(); // fecha qualquer modal aberto
+  CUR=pid;
+  refreshEMP(CWS); // equipe da semana exibida
+  PAGES.forEach(p=>{const el=document.getElementById(`nv-${p.id}`);if(el)el.classList.toggle('active',p.id===pid);});
+  const p=PAGES.find(x=>x.id===pid);
+  document.getElementById('tb-title').textContent=`${p.ic} ${p.lbl}`;
+  document.getElementById('wk-chip').textContent=fmtWR(CWS);
+  const con=document.getElementById('content');
+  const fn={dashboard:pDash,escala:pEscala,rodizio:pRodizio,calendario:pCal,plantoes:pPlantoes,folgas:pFolgas,trocas:pTrocas,compensacoes:pComps,equipe:pEquipe,relatorios:pRel,configuracoes:pCfg}[pid];
+  if(fn){try{con.innerHTML=fn();}catch(e){con.innerHTML=`<div class="alert al-danger"><span class="alert-ic">❌</span><div><div class="alert-title">Erro ao renderizar</div><div class="alert-msg">${e.message}</div></div></div>`;console.error(e);}}
+  con.scrollTop=0;closeSB();
+}
+
+function openSB(){document.getElementById('sidebar').classList.add('open');document.getElementById('sb-ov').classList.add('visible');}
+function closeSB(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sb-ov').classList.remove('visible');}
+function changeWeek(d){CWS=d>0?nws(CWS):pws(CWS);navigate('escala');}
+function changeMonth(d){calM+=d;if(calM>12){calM=1;calY++;}if(calM<1){calM=12;calY--;}navigate('calendario');}
+
+// ================================================================
+// TOAST
+// ================================================================
+function toast(msg,type='info',dur=3500){
+  const ic={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const tz=document.getElementById('tz');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span>${ic[type]||ic.info}</span><span style="flex:1">${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;margin-left:6px;font-size:.9rem">✕</button>`;
+  tz.appendChild(t);
+  setTimeout(()=>{t.classList.add('rm');setTimeout(()=>t.remove(),250);},dur);
+}
+
+// ================================================================
+// MODAL
+// ================================================================
+function openModal(title,body,onOk,okLbl='Confirmar',size=''){
+  document.getElementById('app-modal')?.remove();
+  const bd=document.createElement('div');
+  bd.className='modal-bd';bd.id='app-modal';
+  bd.onclick=e=>{if(e.target===bd)bd.remove();};
+  bd.innerHTML=`<div class="modal ${size}">
+    <div class="mh"><h3>${title}</h3><button class="mc" onclick="document.getElementById('app-modal').remove()">✕</button></div>
+    <div class="mb">${body}</div>
+    ${onOk?`<div class="mf"><button class="btn btn-ghost" onclick="document.getElementById('app-modal').remove()">Cancelar</button><button class="btn btn-primary" id="mok-btn">${okLbl}</button></div>`:`<div class="mf"><button class="btn btn-ghost" onclick="document.getElementById('app-modal').remove()">Fechar</button></div>`}
+  </div>`;
+  document.body.appendChild(bd);
+  if(onOk)document.getElementById('mok-btn').onclick=onOk;
+}
+
+// ================================================================
+// TABS
+// ================================================================
+function switchTab(tabs,active){
+  tabs.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.toggle('hidden',id!==active);
+  });
+  document.querySelectorAll(`[data-tab-group]`).forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.tabTarget===active);
+  });
+}
+
+// ================================================================
+// PAGE: DASHBOARD
+// ================================================================
+function pDash(){
+  const today=d2s(new Date()),ws=CWS;
+  const{cnt,lst}=ocCounts();
+  const sn=sun(ws),_ocr=S.oncall.find(h=>h.date===sn),noc=_ocr?_ocr.emps:nextOC(sn);
+  const lastOC=[...S.oncall].sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const todayLeaves=EMP.filter(e=>isOnLeave(e.id,today));
+  const working=EMP.filter(e=>!isOnLeave(e.id,today));
+  const cf=conflicts(ws);
+  const errs=cf.filter(c=>c.type==='error'),warns=cf.filter(c=>c.type==='warning');
+  const wds=wdSchedule(ws);
+  const dow=s2d(today).getDay();
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Dashboard</h2><p>${dayN(today)}, ${fmtD(today)}</p></div>
+    <div class="ph-actions">
+      <button class="btn btn-primary" onclick="navigate('escala')">📅 Ver Escala</button>
+    </div>
+  </div>
+
+  <div class="card mb4" style="background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.06));border-color:rgba(59,130,246,.25)">
+    <div class="flex ia jb fw g3">
+      <div>
+        <div style="font-size:.66rem;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;font-weight:700">Semana Atual</div>
+        <div style="font-size:1.25rem;font-weight:800;margin-top:4px">${fmtWRF(ws)}</div>
+        <div class="tsm tm mt2">${wkLbl(ws)}</div>
+      </div>
+      <div class="flex g2">
+        <button class="btn btn-outline-blue btn-sm" onclick="navigate('escala')">Ver Completa →</button>
+        <button class="btn btn-ghost btn-sm" onclick="cpWA('${ws}')">📱 WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats mb4">
+    <div class="sc blue"><span class="si">👥</span><div class="sl">Trabalhando Hoje</div><div class="sv">${working.length}</div><div class="sm">de ${EMP.length} colaboradores</div></div>
+    <div class="sc ${todayLeaves.length>0?'amber':'green'}"><span class="si">🏖️</span><div class="sl">De Folga Hoje</div><div class="sv">${todayLeaves.length}</div><div class="sm">${todayLeaves.length>0?todayLeaves.map(e=>e.name).join(', '):'Nenhum'}</div></div>
+    <div class="sc purple"><span class="si">🌙</span><div class="sl">Plantões Histórico</div><div class="sv">${S.oncall.length}</div><div class="sm">${Object.values(cnt).reduce((a,b)=>a+b,0)} total de escalas</div></div>
+    <div class="sc ${errs.length>0?'red':'green'}"><span class="si">⚠️</span><div class="sl">Alertas</div><div class="sv">${errs.length+warns.length}</div><div class="sm">${errs.length>0?`${errs.length} erro(s)`:'Sem conflitos'}</div></div>
+  </div>
+
+  <div class="grid g-2 g4" style="grid-template-columns:1fr 330px">
+    <div class="flex fc g4">
+
+      <div class="card">
+        <div class="ct flex ia jb"><span>Trabalhando Hoje</span><span class="badge badge-blue">${working.length} ativos</span></div>
+        <div class="flex fc g2">
+          ${working.length===0?`<div class="empty"><div class="empty-ic">😴</div><p>Nenhum ativo hoje</p></div>`:
+            working.map(emp=>{
+              let si='';
+              if(dow>=1&&dow<=5){const w=wds.find(x=>x.emp.id===emp.id);if(w?.shift)si=`${w.shift.start}–${w.shift.end}`;}
+              else if(dow===6){const ss=empSatSlot(emp.id,ws);if(ss)si=`${ss.start}–${ss.end}`;}
+              return`<div class="flex ia g3" style="padding:9px 12px;background:var(--s2);border-radius:var(--rs);border:1px solid var(--bd)">
+                ${av(emp)}
+                <div class="f1"><div class="fw6 tsm">${emp.name}</div>${si?`<div class="txs tm">🕐 ${si}</div>`:'<div class="txs" style="color:var(--t3)">Sem horário cadastrado</div>'}</div>
+                ${si?`<span class="badge badge-blue">${si}</span>`:''}
+              </div>`;
+            }).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct flex ia jb"><span>📅 Escala Seg–Sex | ${fmtWR(ws)}</span><button class="btn btn-ghost btn-sm" onclick="navigate('escala')">Completa →</button></div>
+        <div class="flex fc g2">${buildShiftBlocks(wds)}</div>
+      </div>
+
+    </div>
+
+    <div class="flex fc g4">
+
+      ${errs.length>0||warns.length>0?`
+      <div class="card" style="border-color:rgba(239,68,68,.3)">
+        <div class="ct flex ia g2" style="color:var(--red)">⚠️ Alertas <span class="badge badge-red">${errs.length+warns.length}</span></div>
+        ${[...errs,...warns].slice(0,4).map(c=>`<div class="cfitem ${c.type==='warning'?'warn':''}"><span>${c.type==='error'?'🔴':'🟡'}</span><div><div class="cft">${c.msg}</div><div class="cfd">${c.det||''}</div></div></div>`).join('')}
+      </div>`:`
+      <div class="card" style="border-color:rgba(16,185,129,.3)">
+        <div class="ct" style="color:var(--green)">✅ Sem Alertas</div>
+        <p class="tsm tm">Nenhum conflito detectado esta semana.</p>
+      </div>`}
+
+      <div class="card">
+        <div class="ct flex ia jb">🌙 Próximo Plantão<button class="btn btn-ghost btn-sm" onclick="navigate('plantoes')">Fila →</button></div>
+        <div class="txs tm mb3">Domingo ${fmtD(sn)}</div>
+        <div class="flex fc g2">
+          ${noc.map((eid,i)=>{
+            const e=fe(eid);if(!e)return'';
+            return`<div class="qcard ${i===0?'next':''}">
+              ${i===0?'<div class="next-tag">Escalado</div>':''}
+              <div class="qpos">${i+1}</div>${av(e)}
+              <div class="qinfo"><div class="qname">${e.name}</div><div class="qmeta">${cnt[eid]===0?'⭐ Nunca fez plantão':''}</div></div>
+              <div><div class="qsv">${cnt[eid]||0}</div><div class="qsl">plantões</div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      ${lastOC?`
+      <div class="card">
+        <div class="ct">📋 Último Plantão</div>
+        <div class="txs tm mb3">${fmtD(lastOC.date)}</div>
+        <div class="flex fw g2">${lastOC.emps.map(eid=>{const e=fe(eid);return e?chip(e):''}).join('')}</div>
+      </div>`:''}
+
+      <div class="card">
+        <div class="ct flex ia jb">🏆 Plantões / Agente<button class="btn btn-ghost btn-sm" onclick="navigate('plantoes')">→</button></div>
+        <div class="flex fc" style="gap:0">
+          ${[...EMP].sort((a,b)=>(cnt[b.id]||0)-(cnt[a.id]||0)).map((emp,i)=>`
+            <div class="flex ia g2" style="padding:6px 0;border-bottom:1px solid var(--bd)">
+              <div style="width:16px;font-size:.67rem;color:var(--t3);text-align:center">${i+1}</div>
+              ${av(emp,'av-sm')}
+              <div class="f1 tsm fw6">${emp.name}</div>
+              <div class="tsm fw7">${cnt[emp.id]||0}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+}
+
+function buildShiftBlocks(wds){
+  const grp={};
+  wds.forEach(({emp,shift,onLeave})=>{
+    if(!shift||onLeave)return;
+    const k=`${shift.start}|${shift.end}|${shift.bkS}|${shift.bkE}`;
+    if(!grp[k])grp[k]={shift,emps:[]};
+    grp[k].emps.push(emp);
+  });
+  return Object.values(grp).sort((a,b)=>a.shift.start.localeCompare(b.shift.start)).map(g=>`
+    <div class="shift-blk">
+      <div class="shift-blk-time">
+        <div>${g.shift.start} – ${g.shift.end}</div>
+        <div style="font-size:.68rem;color:var(--t2)">☕ ${g.shift.bkS}–${g.shift.bkE}</div>
+      </div>
+      <div class="shift-blk-agents">${g.emps.map(e=>`<div class="chip">${av(e,'av-sm')} ${e.name}</div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ================================================================
+// PAGE: ESCALA
+// ================================================================
+function pEscala(){
+  const ws=CWS,wds=wdSchedule(ws),sats=satSchedule(ws);
+  const sa=sat(ws),sn=sun(ws);
+  const ocRec=S.oncall.find(h=>h.date===sn);
+  const noc=nextOC(sn);
+  const cf=conflicts(ws).filter(c=>c.type!=='info');
+  const isAdm=S.config.role==='admin';
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Escala Semanal</h2><p>${wkLbl(ws)}</p></div>
+    <div class="ph-actions">
+      ${isAdm?`<button class="btn btn-primary" onclick="genNextWeek()">⚡ Ver Próxima</button>`:''}
+      <button class="btn btn-secondary" onclick="cpWA('${ws}')">📱 WhatsApp</button>
+      <button class="btn btn-ghost" onclick="exportXLSX('${ws}')">⬇ Planilha XLSX</button><button class="btn btn-ghost" onclick="exportCSV('${ws}')">⬇ CSV</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </div>
+
+  <div class="wnav mb4">
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(-1)">← Anterior</button>
+    <div class="wnav-info">
+      <div class="wnav-lbl">${wkLbl(ws)}</div>
+      <div class="wnav-range">${fmtWRF(ws)}</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="changeWeek(1)">Próxima →</button>
+  </div>
+
+  ${cf.length>0?`<div class="mb4">${cf.map(c=>`<div class="cfitem ${c.type==='warning'?'warn':''}"><span>${c.type==='error'?'🔴':'🟡'}</span><div><div class="cft">${c.msg}</div><div class="cfd">${c.det||''}</div></div></div>`).join('')}</div>`:''}
+
+  <!-- Weekday Table -->
+  <div class="card mb4">
+    <div class="ct flex ia jb">
+      <span>📅 Segunda – Sexta | ${fmtD(ws)} a ${fmtD(fri(ws))}</span>
+      <span class="badge badge-blue">Semana ${woff(ws)>=0?woff(ws)+1:woff(ws)}</span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>Agente</th>
+          <th>Horário</th>
+          <th>Intervalo</th>
+          ${wkdays(ws).map(d=>`<th style="text-align:center;min-width:90px">
+            <div>${dayNS(d)}</div>
+            <div style="font-size:.6rem;font-weight:400;color:var(--t3)">${fmtDs(d)}</div>
+            ${EMP.some(e=>isOnLeave(e.id,d))?`<button class="btn btn-ghost btn-sm" style="margin-top:4px;padding:2px 6px;font-size:.62rem" onclick="editCoverage('${ws}','${d}')">✏️ Cobertura</button>`:''}
+          </th>`).join('')}
+          ${isAdm?'<th>✏️</th>':''}
+        </tr></thead>
+        <tbody>
+          ${[...wds].sort((a,b)=>(a.shift?.start||'99').localeCompare(b.shift?.start||'99')).map(({emp,shift})=>{
+            const days=wkdays(ws);
+            return`<tr>
+              <td><div class="ag-cell">${av(emp)} <span class="fw6">${emp.name}</span></div></td>
+              <td>${shift?`<div class="st">${shift.start}–${shift.end}</div>`:'<span class="tm">—</span>'}</td>
+              <td>${shift?`<span class="txs tm">${shift.bkS}–${shift.bkE}</span>`:'—'}</td>
+              ${days.map(d=>{
+                const sch=dailyWDAssignments(ws,d);
+                const assigned=sch.rows.find(r=>r.emp.id===emp.id);
+                const off=sch.absent.find(e=>e.id===emp.id);
+                const lv=!!off;
+                const coverage=assigned?.coverage;
+                let style='text-align:center;';
+                let badge='<span style="color:var(--green);font-size:.8rem">✓</span>';
+                if(lv){
+                  style+='background:rgba(245,158,11,.13);border-left:2px solid var(--amber);border-right:2px solid var(--amber);';
+                  badge=`<span class="badge badge-amber" style="font-size:.62rem;font-weight:800">🌙 FOLGA</span><div style="margin-top:4px"><button class="btn btn-ghost btn-sm" style="font-size:.58rem;padding:3px 6px" onclick="editCoverage('${ws}','${d}')">✏️ Cobertura</button></div>`;
+                }else if(coverage){
+                  style+='background:rgba(16,185,129,.13);border-left:2px solid var(--green);border-right:2px solid var(--green);';
+                  badge=`<span class="badge" style="font-size:.58rem;font-weight:800;background:var(--green-g);color:var(--green);border:1px solid rgba(16,185,129,.35)">↪ COBRE ${assigned.covering}</span>`;
+                }
+                return`<td style="${style}">${badge}</td>`;
+              }).join('')}
+              ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="editWD('${emp.id}','${ws}')">✏️</button></td>`:''}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--bd);background:var(--s2)">
+      <span class="badge badge-amber">🌙 FOLGA</span>
+      <span class="badge" style="background:var(--green-g);color:var(--green);border:1px solid rgba(16,185,129,.35)">↪ COBRE A FOLGA</span>
+      <span class="txs tm" style="align-self:center">A célula fica destacada no dia correspondente.</span>
+    </div>
+
+    <!-- Preview: next week rotation -->
+    <div style="margin-top:14px;padding:12px;background:var(--s2);border-radius:var(--rs);border:1px solid var(--bd)">
+      <div class="txs fw7 tm" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">🔄 Próxima Semana (Pré-visualização)</div>
+      <div class="flex fw g2">
+        ${teamW(nws(ws)).map(emp=>{
+          const ns=empWdShift(emp.id,nws(ws));
+          return`<div class="chip" style="font-size:.72rem">${av(emp,'av-sm')} ${emp.name}: <b style="color:var(--blue)">${ns?ns.start+'–'+ns.end:'?'}</b></div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- Cobertura Qui/Sex (folgas pré-plantão) -->
+  ${(()=>{
+    const thuDate=wkdays(ws)[3]; // Quinta-feira
+    const friDate=wkdays(ws)[4]; // Sexta-feira
+    const thuOff=EMP.filter(e=>isOnLeave(e.id,thuDate)&&leaveType(e.id,thuDate)==='pre_oncall');
+    const friOff=EMP.filter(e=>isOnLeave(e.id,friDate)&&leaveType(e.id,friDate)==='pre_oncall');
+    if(thuOff.length===0&&friOff.length===0)return'';
+    const dayCard=(dayLabel,dateStr,offList)=>{
+      const present=EMP.filter(e=>!isOnLeave(e.id,dateStr));
+      const gaps=offList.map(e=>{
+        const sh=empWdShift(e.id,ws);
+        return sh?`${sh.start}–${sh.end} (${e.name})`:null;
+      }).filter(Boolean);
+      return`
+      <div style="flex:1;min-width:260px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:var(--rs);padding:12px">
+        <div class="flex ia jb mb2">
+          <span class="fw7 tsm">${dayLabel} — ${fmtD(dateStr)}</span>
+          <span class="badge badge-amber">${present.length}/${EMP.length} presentes</span>
+        </div>
+        <div class="txs tm mb2">🌙 Folga pré-plantão:</div>
+        <div class="flex fw g2 mb3">${offList.map(e=>`<div class="chip">${av(e,'av-sm')} <span class="fw6">${e.name}</span></div>`).join('')}</div>
+        ${gaps.length>0?`<div class="txs" style="color:var(--amber)">⚠️ <b>Turno descoberto:</b> ${gaps.join(', ')}</div>`:''}
+        <div class="mt2">
+          <div class="txs tm mb1">Presentes:</div>
+          <div class="flex fw g2">${present.map(e=>{
+            const sh=empWdShift(e.id,ws);
+            return`<div class="chip" style="font-size:.7rem">${av(e,'av-sm')} ${e.name}<b style="color:var(--blue);margin-left:4px">${sh?sh.start+'–'+sh.end:'?'}</b></div>`;
+          }).join('')}</div>
+        </div>
+      </div>`;
+    };
+    return`
+    <div class="card mb4" style="border-color:rgba(245,158,11,.3)">
+      <div class="ct flex ia g2">🌙 Cobertura — Folgas Pré-Plantão <span class="badge badge-amber">Auto</span></div>
+      <div class="flex fw g3">
+        ${thuOff.length>0?dayCard('Quinta-feira',thuDate,thuOff):''}
+        ${friOff.length>0?dayCard('Sexta-feira',friDate,friOff):''}
+      </div>
+    </div>`;
+  })()}
+
+  <!-- Saturday Table -->
+  <div class="card mb4" style="border-color:rgba(139,92,246,.2)">
+    <div class="ct flex ia jb">
+      <span>📋 Sábado — ${fmtD(sa)}</span>
+      <span class="badge badge-purple">Sábado</span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Agente</th><th>Tipo</th><th>Horário</th>${isAdm?'<th>Editar</th>':''}</tr></thead>
+        <tbody>
+          ${[...sats].sort((a,b)=>(a.slot?.start||'99').localeCompare(b.slot?.start||'99')).map(({emp,slot,onLeave})=>`
+            <tr>
+              <td><div class="ag-cell">${av(emp)} <span class="fw6">${emp.name}</span></div></td>
+              <td>${onLeave?'<span class="badge t-flg">Folga</span>':'<span class="badge t-sat">Sábado</span>'}</td>
+              <td>${onLeave?'<span class="badge badge-gray">Ausente</span>':`<div class="st">${slot?.start||'?'}–${slot?.end||'?'}</div>`}</td>
+              ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="editSAT('${emp.id}','${ws}')">✏️</button></td>`:''}
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sunday Oncall -->
+  <div class="card" style="border-color:rgba(245,158,11,.25)">
+    <div class="ct flex ia jb">
+      🌙 Domingo — Plantão — ${fmtD(sn)}
+      <span class="badge badge-amber">Plantão</span>
+    </div>
+    ${ocRec?`
+      <div class="flex fw g2 mb3">
+        ${ocRec.emps.map(eid=>{const e=fe(eid);return e?`<div class="chip">${av(e)} <span class="fw6">${e.name}</span> <span class="txs tm">08:00–18:00</span></div>`:'';}).join('')}
+      </div>
+      ${isAdm?`<button class="btn btn-ghost btn-sm" onclick="editOC('${sn}')">✏️ Editar Plantão</button>`:''}
+    `:`
+      <div class="alert al-info">
+        <span class="alert-ic">ℹ️</span>
+        <div><div class="alert-title">Plantão Sugerido — calculado pela fila de prioridade</div></div>
+      </div>
+      <div class="flex fw g2 mb3">
+        ${noc.map(eid=>{const e=fe(eid);return e?`<div class="chip">${av(e)} ${e.name} <span class="badge badge-amber ml2">Sugerido</span></div>`:'';}).join('')}
+      </div>
+      ${isAdm?`<button class="btn btn-amber" onclick="confirmOC('${sn}','${noc.join(',')}')">✅ Confirmar Plantão</button>`:''}
+    `}
+  </div>
+</div>`;
+}
+
+function genNextWeek(){CWS=nws(CWS);navigate('escala');toast('Próxima semana — calculada pelo rodízio automático!','success');}
+
+// ================================================================
+// PAGE: RODÍZIO FUTURO (pré-visualização de várias semanas)
+// ================================================================
+let rodWeeks=8;
+function changeRodWeeks(v){rodWeeks=parseInt(v)||8;navigate('rodizio');}
+function rodWeekList(n){const list=[];let ws=CWS;for(let i=0;i<n;i++){list.push(ws);ws=nws(ws);}return list;}
+
+function pRodizio(){
+  const weeks=rodWeekList(rodWeeks);
+  // colunas = todos que trabalham em alguma das semanas listadas (entradas/saídas aparecem com "—" nas semanas fora)
+  const cols=teamOrdered(weeks[0]).filter(e=>weeks.some(w=>activeIn(e,w)));
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>🔮 Rodízio Futuro</h2><p>Pré-visualização automática do rodízio (Seg-Sex e Sábado) para as próximas semanas</p></div>
+    <div class="ph-actions">
+      <select class="fi" id="rod-weeks-sel" onchange="changeRodWeeks(this.value)" style="width:auto">
+        ${[4,8,12,16,26].map(n=>`<option value="${n}" ${rodWeeks===n?'selected':''}>${n} semanas</option>`).join('')}
+      </select>
+    </div>
+  </div>
+
+  <div class="card mb4">
+    <div class="ct">📅 Seg – Sex</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Semana</th>${cols.map(e=>`<th>${e.name}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${weeks.map(ws=>{
+            const isCur=ws===CWS;
+            return`<tr ${isCur?'style="background:var(--blue-g)"':''}>
+              <td class="tsm fw6" style="white-space:nowrap">${fmtWRF(ws)}${isCur?' <span class="badge badge-blue">Atual</span>':''}</td>
+              ${cols.map(e=>{const s=empWdShift(e.id,ws);return`<td><div class="st">${s?s.start+'–'+s.end:'—'}</div></td>`;}).join('')}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">📋 Sábados</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Sábado</th>${cols.map(e=>`<th>${e.name}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${weeks.map(ws=>{
+            const isCur=ws===CWS;
+            return`<tr ${isCur?'style="background:var(--blue-g)"':''}>
+              <td class="tsm fw6" style="white-space:nowrap">${fmtD(sat(ws))}</td>
+              ${cols.map(e=>{const s=empSatSlot(e.id,ws);return`<td><div class="st">${s?s.start+'–'+s.end:'—'}</div></td>`;}).join('')}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>`;
+}
+function confirmOC(date,empIds){
+  if(typeof empIds==='string')empIds=empIds.split(',').filter(Boolean);
+  saveOC(date,empIds);toast(`✅ Plantão ${fmtD(date)} confirmado!`,'success');navigate('escala');
+}
+async function cpWA(ws){
+  const msg=genWA(ws);
+  try{await navigator.clipboard.writeText(msg);toast('📱 Escala copiada! Cole no WhatsApp.','success');}
+  catch{const ta=document.createElement('textarea');ta.value=msg;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('Escala copiada!','success');}
+}
+
+const OPT_STYLE='display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.8rem;cursor:pointer';
+function editWD(empId,ws){
+  const emp=fe(empId),cur=empWdShift(empId,ws),slots=slotsInOrder('wd',ws);
+  openModal(`Editar Horário — ${emp?.name}`,`
+    <p class="tsm tm mb3">Semana: ${fmtWRF(ws)}</p>
+    <div class="fg"><label class="fl">Novo horário (Seg-Sex)</label>
+    <select class="fi" id="ew-sel">
+      ${slots.map(s=>`<option value="${s.id}" ${cur?.id===s.id?'selected':''}>${s.start}–${s.end} ☕${s.bkS}–${s.bkE} (${s.n})</option>`).join('')}
+    </select></div>
+    <label style="${OPT_STYLE}"><input type="checkbox" id="ew-swap" checked> Trocar com quem está nesse horário</label>
+    <label style="${OPT_STYLE}"><input type="checkbox" id="ew-prop" checked> Continuar o rodízio nas próximas semanas a partir daqui</label>`,()=>{
+    const sid=document.getElementById('ew-sel')?.value;
+    const swap=document.getElementById('ew-swap')?.checked;
+    const prop=document.getElementById('ew-prop')?.checked;
+    const changes={[empId]:sid};
+    let other=null;
+    if(swap&&cur&&sid!==cur.id){
+      other=teamW(ws).find(e=>e.id!==empId&&empWdShift(e.id,ws)?.id===sid);
+      if(other)changes[other.id]=cur.id;
+    }
+    applyPosEdit('wd',ws,changes,prop);
+    saveS();
+    addLog('wd_edit',`Horário de ${emp?.name}${other?` ↔ ${other.name}`:''} editado (${ws})${prop?' + semanas seguintes':''}`);
+    toast(`Horário atualizado${other?` (trocado com ${other.name})`:''}${prop?' e propagado':''}!`,'success');
+    navigate('escala');
+  },'Salvar');
+}
+function editSAT(empId,ws){
+  const emp=fe(empId),cur=empSatSlot(empId,ws),slots=slotsInOrder('sat',ws);
+  openModal(`Editar Sábado — ${emp?.name}`,`
+    <p class="tsm tm mb3">Sábado: ${fmtD(sat(ws))}</p>
+    <div class="fg"><label class="fl">Novo horário do Sábado</label>
+    <select class="fi" id="es-sel">
+      ${slots.map((s,i)=>`<option value="${s.id}" ${cur?.id===s.id?'selected':''}>${s.start}–${s.end} (posição ${i+1})</option>`).join('')}
+    </select></div>
+    <label style="${OPT_STYLE}"><input type="checkbox" id="es-swap" checked> Trocar com quem está nesse horário</label>
+    <label style="${OPT_STYLE}"><input type="checkbox" id="es-prop" checked> Continuar o rodízio nos próximos sábados a partir daqui</label>`,()=>{
+    const sid=document.getElementById('es-sel')?.value;
+    const swap=document.getElementById('es-swap')?.checked;
+    const prop=document.getElementById('es-prop')?.checked;
+    const changes={[empId]:sid};
+    let other=null;
+    if(swap&&cur&&sid!==cur.id){
+      other=teamW(ws).find(e=>e.id!==empId&&empSatSlot(e.id,ws)?.id===sid);
+      if(other)changes[other.id]=cur.id;
+    }
+    applyPosEdit('sat',ws,changes,prop);
+    saveS();
+    addLog('sat_edit',`Sábado de ${emp?.name}${other?` ↔ ${other.name}`:''} editado (${ws})${prop?' + semanas seguintes':''}`);
+    toast(`Sábado atualizado${other?` (trocado com ${other.name})`:''}${prop?' e propagado':''}!`,'success');
+    navigate('escala');
+  },'Salvar');
+}
+function editOC(date){
+  const rec=S.oncall.find(h=>h.date===date);
+  const cur=rec?rec.emps:[];
+  const team=teamW(wsOf(date));
+  openModal(`Editar Plantão — ${fmtD(date)}`,`
+    <p class="tsm tm mb3">Selecione os plantonistas:</p>
+    <div class="flex fc g2">
+      ${team.map(emp=>`
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px;border-radius:var(--rx);border:1px solid var(--bd);transition:background var(--tr)">
+          <input type="checkbox" value="${emp.id}" ${cur.includes(emp.id)?'checked':''} style="width:15px;height:15px;accent-color:var(--amber)">
+          ${av(emp,'av-sm')} <span class="fw6 tsm">${emp.name}</span>
+        </label>`).join('')}
+    </div>`,()=>{
+    const checked=Array.from(document.querySelectorAll('#app-modal input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(checked.length===0){toast('Selecione pelo menos 1 plantonista','error');return;}
+    saveOC(date,checked);toast('Plantão atualizado! Semanas automáticas seguintes recalculadas.','success');navigate('escala');
+  },'Salvar');
+}
+
+// ================================================================
+// PAGE: CALENDÁRIO
+// ================================================================
+function pCal(){
+  const days=monthDays(calY,calM);
+  const mns=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const dns=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const evMap=buildEvMap(calY,calM);
+
+  return`<div class="page-enter">
+  <div class="ph"><div><h2>Calendário</h2><p>${mns[calM-1]} de ${calY}</p></div>
+    <div class="ph-actions flex ia g2">
+      <span class="badge badge-blue">Expediente</span>
+      <span class="badge badge-purple">Sábado</span>
+      <span class="badge badge-amber">Plantão</span>
+      <span class="badge badge-gray">Folga</span>
+    </div>
+  </div>
+
+  <div class="card mb4" style="padding:9px 14px">
+    <div class="flex ia jb">
+      <button class="btn btn-ghost btn-sm" onclick="changeMonth(-1)">← ${mns[(calM-2+12)%12]}</button>
+      <div class="fw7" style="font-size:1.05rem">${mns[calM-1]} ${calY}</div>
+      <button class="btn btn-ghost btn-sm" onclick="changeMonth(1)">${mns[calM%12]} →</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:12px">
+    <div class="cal-grid mb2">${dns.map(d=>`<div class="cal-dn">${d}</div>`).join('')}</div>
+    <div class="cal-grid">
+      ${days.map(({date,cur})=>{
+        const dw=s2d(date).getDay();
+        const evs=evMap[date]||[];
+        return`<div class="cal-cell ${!cur?'om':''} ${isToday(date)?'today':''} ${dw===0?'sunday':''}" onclick="showDay('${date}')">
+          <div class="cal-num">${parseInt(date.split('-')[2])}</div>
+          ${evs.slice(0,3).map(ev=>`<div class="cal-ev ev-${ev.t}" title="${ev.l}">${ev.l}</div>`).join('')}
+          ${evs.length>3?`<div style="font-size:.54rem;color:var(--t3)">+${evs.length-3}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+function buildEvMap(year,month){
+  const map={};
+  const days=monthDays(year,month);
+  days.forEach(({date})=>{
+    const dw=s2d(date).getDay();
+    const ws=d2s(monday(s2d(date)));
+    if(!map[date])map[date]=[];
+    if(dw>=1&&dw<=5){
+      const wds2=wdSchedule(ws,date);
+      const grp={};
+      wds2.forEach(({emp,shift,onLeave})=>{
+        if(onLeave){map[date].push({t:'leave',l:`${emp.initials} folga`});return;}
+        if(!shift)return;
+        const k=`${shift.start}–${shift.end}`;
+        if(!grp[k])grp[k]={shift,c:0};
+        grp[k].c++;
+      });
+      Object.values(grp).sort((a,b)=>a.shift.start.localeCompare(b.shift.start)).forEach(g=>{
+        map[date].push({t:'shift',l:`${g.shift.start}–${g.shift.end} (${g.c})`});
+      });
+    } else if(dw===6){
+      const sats2=satSchedule(ws);
+      const grp={};
+      sats2.forEach(({emp,slot,onLeave})=>{
+        if(onLeave){map[date].push({t:'leave',l:`${emp.initials} folga`});return;}
+        if(!slot)return;
+        const k=`${slot.start}–${slot.end}`;
+        if(!grp[k])grp[k]={slot,c:0};
+        grp[k].c++;
+      });
+      Object.values(grp).sort((a,b)=>a.slot.start.localeCompare(b.slot.start)).forEach(g=>{
+        map[date].push({t:'sat',l:`${g.slot.start}–${g.slot.end} (${g.c})`});
+      });
+    } else if(dw===0){
+      const oc2=S.oncall.find(h=>h.date===date);
+      if(oc2)oc2.emps.forEach(id=>{const e=fe(id);if(e)map[date].push({t:'oncall',l:`${e.name} plantão`});});
+    }
+    S.leaves.forEach(l=>{
+      if(l.empId&&date>=l.s&&date<=l.e){
+        const e=fe(l.empId);
+        if(e&&!map[date].find(ev=>ev.l.includes(e.initials)))
+          map[date].push({t:'leave',l:`${e.initials} ${leaveLbl(l.type)}`});
+      }
+    });
+  });
+  return map;
+}
+
+function showDay(date){
+  const dw=s2d(date).getDay();
+  const ws=d2s(monday(s2d(date)));
+  let body='';
+  if(dw>=1&&dw<=5){
+    const wds2=wdSchedule(ws,date);
+    body=`<div style="background:var(--s2);border-radius:var(--rs);border:1px solid var(--bd);padding:14px">
+      <div class="txs fw7 tm mb3" style="text-transform:uppercase;letter-spacing:.05em">📅 Expediente — ${dayN(date)} ${fmtD(date)}</div>
+      <div class="flex fc g2">${wds2.map(({emp,shift,onLeave})=>`
+        <div class="flex ia g2" style="padding:6px 0;border-bottom:1px solid var(--bd)">
+          ${av(emp,'av-sm')} <div class="f1 tsm fw6">${emp.name}</div>
+          ${onLeave?'<span class="badge badge-gray">Folga</span>':`<span class="badge badge-blue">${shift?.start}–${shift?.end}</span>`}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } else if(dw===6){
+    const sats2=satSchedule(ws);
+    body=`<div style="background:var(--s2);border-radius:var(--rs);border:1px solid var(--bd);padding:14px">
+      <div class="txs fw7 tm mb3" style="text-transform:uppercase;letter-spacing:.05em">📋 Sábado — ${fmtD(date)}</div>
+      <div class="flex fc g2">${sats2.sort((a,b)=>(a.slot?.start||'').localeCompare(b.slot?.start||'')).map(({emp,slot,onLeave})=>`
+        <div class="flex ia g2" style="padding:6px 0;border-bottom:1px solid var(--bd)">
+          ${av(emp,'av-sm')} <div class="f1 tsm fw6">${emp.name}</div>
+          ${onLeave?'<span class="badge badge-gray">Folga</span>':`<span class="badge badge-purple">${slot?.start}–${slot?.end}</span>`}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } else if(dw===0){
+    const oc2=S.oncall.find(h=>h.date===date);
+    const noc2=nextOC(date);
+    body=`<div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:var(--rs);padding:14px">
+      <div class="txs fw7 mb3" style="color:var(--amber);text-transform:uppercase;letter-spacing:.05em">🌙 Plantão — Domingo ${fmtD(date)}</div>
+      <div class="flex fw g2">
+        ${oc2?oc2.emps.map(eid=>{const e=fe(eid);return e?chip(e):''}).join('')
+             :noc2.map(eid=>{const e=fe(eid);return e?`<div class="chip">${av(e,'av-sm')} ${e.name} <span class="badge badge-amber">Sug.</span></div>`:''}).join('')}
+      </div>
+    </div>`;
+  }
+  if(!body)body=`<p class="tsm tm">Nenhum dado para este dia.</p>`;
+  openModal(`${dayN(date)}, ${fmtD(date)}`,body,null,null);
+}
+
+// ================================================================
+// PAGE: PLANTÕES
+// ================================================================
+function pPlantoes(){
+  const queue=sortedOCQueue();
+  const{cnt,lst}=ocCounts();
+  const sn=sun(CWS);
+  const _ocr=S.oncall.find(h=>h.date===sn),noc=_ocr?_ocr.emps:nextOC(sn);
+  const isAdm=S.config.role==='admin';
+  const hist=[...S.oncall].sort((a,b)=>b.date.localeCompare(a.date));
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Plantões</h2><p>Fila de prioridade e histórico</p></div>
+    <div class="ph-actions">
+      <button class="btn btn-secondary" onclick="expOCcsv()">⬇ CSV</button>
+      ${isAdm?`<button class="btn btn-primary" onclick="editOC('${sn}')">+ Registrar Plantão</button>`:''}
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="swTab(['plt-q','plt-h','plt-r','plt-p'],'plt-q',this)">🌙 Fila</button>
+    <button class="tab-btn" onclick="swTab(['plt-q','plt-h','plt-r','plt-p'],'plt-h',this)">📋 Histórico</button>
+    <button class="tab-btn" onclick="swTab(['plt-q','plt-h','plt-r','plt-p'],'plt-r',this)">🏆 Ranking</button>
+    <button class="tab-btn" onclick="swTab(['plt-q','plt-h','plt-r','plt-p'],'plt-p',this)">🔮 Próximas</button>
+  </div>
+
+  <div id="plt-q">
+    <div class="alert al-info">
+      <span class="alert-ic">ℹ️</span>
+      <div><div class="alert-title">Fila para Domingo ${fmtD(sn)}</div>
+      <div class="alert-msg">Prioridade: 1) Nunca fez • 2) Mais tempo sem fazer • 3) Menos plantões acumulados</div></div>
+    </div>
+    <div class="flex fc g2">
+      ${queue.map((emp,i)=>{
+        const isNext=noc.includes(emp.id);
+        return`<div class="qcard ${isNext?'next':''}">
+          ${isNext?'<div class="next-tag">Escalado</div>':''}
+          <div class="qpos">${i+1}</div>${av(emp)}
+          <div class="qinfo">
+            <div class="qname">${emp.name}</div>
+            <div class="qmeta">${cnt[emp.id]===0?'⭐ Nunca fez plantão':lst[emp.id]?`Último: ${fmtD(lst[emp.id])}`:'—'}</div>
+          </div>
+          <div class="qstats">
+            <div><div class="qsv">${cnt[emp.id]||0}</div><div class="qsl">plantões</div></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div id="plt-h" class="hidden">
+    <div class="mb4">
+      <select class="fi" style="max-width:220px" onchange="filterOC(this.value)">
+        <option value="">Todos os colaboradores</option>
+        ${teamOrdered().map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Data</th><th>Plantonistas</th><th>Tipo</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+        <tbody id="oc-tbody">${renderOCrows(hist,isAdm)}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="plt-r" class="hidden">
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>Colaborador</th><th>Plantões</th><th>Último</th><th>Próximo</th></tr></thead>
+        <tbody>
+          ${[...EMP].sort((a,b)=>(cnt[b.id]||0)-(cnt[a.id]||0)).map((emp,i)=>`
+            <tr>
+              <td><div style="width:22px;height:22px;border-radius:4px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:${i===0?'#f0b90b':i===1?'#c0c0c0':i===2?'#cd7f32':'var(--t3)'}">${i+1}</div></td>
+              <td><div class="ag-cell">${av(emp,'av-sm')} <span class="fw6">${emp.name}</span></div></td>
+              <td class="fw7">${cnt[emp.id]||0}</td>
+              <td class="tsm tm">${lst[emp.id]?fmtD(lst[emp.id]):'—'}</td>
+              <td>${noc.includes(emp.id)?'<span class="badge badge-amber">✅</span>':'<span class="badge badge-gray">—</span>'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="plt-p" class="hidden">
+    <div class="alert al-info mb3">
+      <span class="alert-ic">ℹ️</span>
+      <div><div class="alert-title">Projeção do rodízio</div>
+      <div class="alert-msg">“Manual” = você definiu e o sistema preserva. “Automático” = calculado pelo rodízio e refeito quando você edita uma semana anterior ou muda a equipe. “Sugerido” = ainda não confirmado.</div></div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Data</th><th>Dia</th><th>Plantonistas</th><th>Status</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+        <tbody>
+          ${projectOC(12).map(p=>{
+            const names=p.emps.map(id=>fe(id)).filter(Boolean);
+            const isCur=p.date===sn;
+            return`<tr ${isCur?'style="background:var(--blue-g)"':''}>
+              <td class="fw6" style="white-space:nowrap">${fmtD(p.date)}${isCur?' <span class="badge badge-blue">Próximo</span>':''}</td>
+              <td class="tsm tm">${dayN(p.date)}</td>
+              <td><div class="flex fw g2">${names.map(e=>chip(e)).join('')}</div></td>
+              <td>${p.confirmed?(p.auto?'<span class="badge badge-blue">Automático</span>':'<span class="badge badge-green">Manual</span>'):'<span class="badge badge-amber">Sugerido</span>'}</td>
+              ${isAdm?`<td>${p.confirmed?`<button class="btn btn-ghost btn-sm" onclick="editOC('${p.date}')">✏️</button>`:`<button class="btn btn-amber btn-sm" onclick="confirmOC('${p.date}','${p.emps.join(',')}')">✅ Confirmar</button>`}</td>`:''}
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderOCrows(hist,isAdm,filterEmpId=''){
+  const filt=filterEmpId?hist.filter(h=>h.emps.includes(filterEmpId)):hist;
+  if(filt.length===0)return`<tr><td colspan="4" class="tc tm" style="padding:20px">Nenhum registro</td></tr>`;
+  return filt.map(h=>`
+    <tr>
+      <td class="fw6">${fmtD(h.date)}</td>
+      <td><div class="flex fw g2">${h.emps.map(eid=>{const e=fe(eid);return e?chip(e):''}).join('')}</div></td>
+      <td><span class="badge t-plt">Plantão</span></td>
+      ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="editOC('${h.date}')">✏️</button> <button class="btn btn-ghost btn-sm" onclick="delOC('${h.date}')">🗑️</button></td>`:''}
+    </tr>`).join('');
+}
+function filterOC(empId){
+  const tb=document.getElementById('oc-tbody');
+  if(tb){const h=[...S.oncall].sort((a,b)=>b.date.localeCompare(a.date));tb.innerHTML=renderOCrows(h,S.config.role==='admin',empId);}
+}
+function delOC(date){
+  if(!confirm(`Remover plantão de ${fmtD(date)}? A data volta para o rodízio automático e as semanas automáticas seguintes serão recalculadas.`))return;
+  S.oncall=S.oncall.filter(h=>h.date!==date);
+  recalcOncallAfter(date);
+  saveS();toast('Plantão removido — a data voltou ao rodízio automático','warning');navigate('plantoes');
+}
+function swTab(all,active,btn){
+  all.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',id!==active);});
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+}
+function expOCcsv(){
+  const rows=[['Data','Colaborador','Horário']];
+  [...S.oncall].sort((a,b)=>a.date.localeCompare(b.date)).forEach(h=>{
+    h.emps.forEach(eid=>{const e=fe(eid);if(e)rows.push([fmtD(h.date),e.name,'08:00–18:00']);});
+  });
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='plantoes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// ================================================================
+// PAGE: FOLGAS
+// ================================================================
+function pFolgas(){
+  const isAdm=S.config.role==='admin';
+  const leaves=[...S.leaves].sort((a,b)=>b.s.localeCompare(a.s));
+  const tc={folga:'badge-blue',ferias:'badge-green',afastamento:'badge-red',compensacao:'badge-amber'};
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Folgas & Ausências</h2><p>Folgas, férias, afastamentos e compensações</p></div>
+    <div class="ph-actions">${isAdm?`<button class="btn btn-primary" onclick="addLeave()">+ Registrar Ausência</button>`:''}</div>
+  </div>
+
+  <div class="flex g3 mb4 fw">
+    <select class="fi" style="max-width:200px" id="lf-emp" onchange="filterLV()">
+      <option value="">Todos os colaboradores</option>
+      ${teamOrdered().map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}
+    </select>
+    <select class="fi" style="max-width:180px" id="lf-type" onchange="filterLV()">
+      <option value="">Todos os tipos</option>
+      <option value="folga">Folga</option><option value="ferias">Férias</option>
+      <option value="afastamento">Afastamento</option><option value="compensacao">Compensação</option>
+    </select>
+  </div>
+
+  ${leaves.length===0?`<div class="empty"><div class="empty-ic">🏖️</div><p>Nenhuma ausência registrada</p>${isAdm?`<button class="btn btn-primary mt3" onclick="addLeave()">+ Registrar</button>`:''}</div>`:`
+  <div class="tw">
+    <table>
+      <thead><tr><th>Colaborador</th><th>Tipo</th><th>Início</th><th>Fim</th><th>Dias</th><th>Motivo</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+      <tbody id="lv-tbody">
+        ${leaves.map(l=>{
+          const emp=fe(l.empId),dias=Math.round((s2d(l.e)-s2d(l.s))/(1000*86400))+1;
+          return`<tr data-emp="${l.empId}" data-type="${l.type}">
+            <td><div class="ag-cell">${emp?av(emp,'av-sm'):''} <span class="fw6">${emp?.name||'?'}</span></div></td>
+            <td><span class="badge ${tc[l.type]||'badge-gray'}">${leaveLbl(l.type)}</span></td>
+            <td>${fmtD(l.s)}</td><td>${fmtD(l.e)}</td>
+            <td class="fw6">${dias}d</td>
+            <td class="tsm tm">${l.reason||'—'}</td>
+            ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="delLeave('${l.id}')">🗑️</button></td>`:''}
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`}
+</div>`;
+}
+
+function filterLV(){
+  const eF=document.getElementById('lf-emp')?.value||'',tF=document.getElementById('lf-type')?.value||'';
+  document.querySelectorAll('#lv-tbody tr[data-emp]').forEach(r=>{r.style.display=(!eF||r.dataset.emp===eF)&&(!tF||r.dataset.type===tF)?'':'none';});
+}
+function addLeave(){
+  openModal('Registrar Ausência',`
+    <div class="flex fc g4">
+      <div class="fg"><label class="fl">Colaborador *</label><select class="fi" id="ll-emp">${EMP.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Tipo *</label><select class="fi" id="ll-type"><option value="folga">Folga</option><option value="ferias">Férias</option><option value="afastamento">Afastamento</option><option value="compensacao">Compensação</option></select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Data início *</label><input type="date" class="fi" id="ll-s" value="${d2s(new Date())}"></div>
+        <div class="fg"><label class="fl">Data fim *</label><input type="date" class="fi" id="ll-e" value="${d2s(new Date())}"></div>
+      </div>
+      <div class="fg"><label class="fl">Motivo</label><textarea class="fi" id="ll-r" rows="2" placeholder="Motivo..."></textarea></div>
+    </div>`,()=>{
+    const empId=document.getElementById('ll-emp')?.value;
+    const type=document.getElementById('ll-type')?.value;
+    const s=document.getElementById('ll-s')?.value;
+    const e=document.getElementById('ll-e')?.value;
+    const reason=document.getElementById('ll-r')?.value?.trim()||'';
+    if(!empId||!s||!e){toast('Preencha todos os campos','error');return;}
+    if(e<s){toast('Data fim deve ser após início','error');return;}
+    S.leaves.push({id:gid(),empId,type,s,e,reason,at:new Date().toISOString()});
+    saveS();const emp=fe(empId);
+    addLog('leave_add',`${leaveLbl(type)}: ${emp?.name} (${fmtD(s)}–${fmtD(e)})`);
+    toast(`${leaveLbl(type)} registrada para ${emp?.name}!`,'success');navigate('folgas');
+  },'Registrar');
+}
+function delLeave(id){if(!confirm('Remover ausência?'))return;S.leaves=S.leaves.filter(l=>l.id!==id);saveS();toast('Ausência removida','warning');navigate('folgas');}
+
+// ================================================================
+// PAGE: TROCAS
+// ================================================================
+function pTrocas(){
+  const isAdm=S.config.role==='admin';
+  const swaps=[...S.swaps].sort((a,b)=>b.date.localeCompare(a.date));
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Trocas</h2><p>Trocas de horário e de plantão — aplicadas de verdade na escala</p></div>
+    <div class="ph-actions">${isAdm?`<button class="btn btn-primary" onclick="addSwap()">+ Registrar Troca</button>`:''}</div>
+  </div>
+  ${swaps.length===0?`<div class="empty"><div class="empty-ic">🔁</div><p>Nenhuma troca registrada</p></div>`:`
+  <div class="tw">
+    <table>
+      <thead><tr><th>Data</th><th>Colaborador A</th><th>Colaborador B</th><th>Tipo</th><th>Motivo</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+      <tbody>${swaps.map(s=>{
+        const e1=fe(s.e1),e2=fe(s.e2);
+        return`<tr>
+          <td class="fw6">${fmtD(s.date)}</td>
+          <td><div class="ag-cell">${e1?av(e1,'av-sm'):''} ${e1?.name||'?'}</div></td>
+          <td><div class="ag-cell">${e2?av(e2,'av-sm'):''} ${e2?.name||'?'}</div></td>
+          <td><span class="badge ${s.type==='oncall'?'badge-amber':'badge-purple'}">${s.type==='oncall'?'Plantão':'Horário'}</span></td>
+          <td class="tsm tm">${s.reason||'—'}</td>
+          ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="delSwap('${s.id}')">🗑️</button></td>`:''}
+        </tr>`;}).join('')}
+      </tbody>
+    </table>
+  </div>`}
+</div>`;
+}
+// Aplica a troca na escala de verdade
+function applySwap(type,date,a,b,prop){
+  const ws=d2s(monday(s2d(date)));
+  if(type==='oncall'){
+    const sn=sun(ws);
+    const rec=S.oncall.find(h=>h.date===sn);
+    const emps=[...(rec?rec.emps:nextOC(sn))];
+    const ia=emps.indexOf(a),ib=emps.indexOf(b);
+    if((ia<0)===(ib<0))return false; // exatamente um dos dois precisa estar no plantão
+    emps[ia>=0?ia:ib]=ia>=0?b:a;
+    saveOC(sn,emps);
+    return true;
+  }
+  const dw=s2d(date).getDay();
+  if(dw===0)return false;
+  const kind=dw===6?'sat':'wd';
+  const get=id=>kind==='wd'?empWdShift(id,ws):empSatSlot(id,ws);
+  const sa=get(a),sb=get(b);
+  if(!sa||!sb)return false;
+  applyPosEdit(kind,ws,{[a]:sb.id,[b]:sa.id},prop);
+  saveS();
+  return true;
+}
+function addSwap(){
+  openModal('Registrar Troca',`
+    <div class="flex fc g4">
+      <div class="fg"><label class="fl">Tipo</label><select class="fi" id="sw-t"><option value="horario">Horário (Seg–Sáb)</option><option value="oncall">Plantão (Domingo)</option></select></div>
+      <div class="fg"><label class="fl">Data (qualquer dia da semana) *</label><input type="date" class="fi" id="sw-d" value="${d2s(new Date())}"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Colaborador A *</label><select class="fi" id="sw-e1">${EMP.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+        <div class="fg"><label class="fl">Colaborador B *</label><select class="fi" id="sw-e2">${EMP.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+      </div>
+      <label style="${OPT_STYLE}"><input type="checkbox" id="sw-p" checked> Continuar o rodízio a partir desta troca (horários)</label>
+      <div class="fg"><label class="fl">Motivo</label><textarea class="fi" id="sw-r" rows="2" placeholder="Motivo da troca..."></textarea></div>
+    </div>`,()=>{
+    const date=document.getElementById('sw-d')?.value;
+    const e1=document.getElementById('sw-e1')?.value;
+    const e2=document.getElementById('sw-e2')?.value;
+    const type=document.getElementById('sw-t')?.value;
+    const prop=document.getElementById('sw-p')?.checked;
+    const reason=document.getElementById('sw-r')?.value?.trim()||'';
+    if(!date){toast('Informe a data','error');return;}
+    if(e1===e2){toast('Selecione colaboradores diferentes','error');return;}
+    if(!applySwap(type,date,e1,e2,prop)){toast('Não foi possível aplicar. Para plantão, só um dos dois pode estar escalado naquele domingo; horário não vale para domingo; e os dois precisam estar na equipe naquela semana.','error');return;}
+    S.swaps.push({id:gid(),date,e1,e2,type,reason,at:new Date().toISOString()});
+    const em1=fe(e1),em2=fe(e2);
+    addLog('swap',`Troca: ${em1?.name} ↔ ${em2?.name} (${fmtD(date)})`);
+    saveS();
+    toast(`Troca aplicada: ${em1?.name} ↔ ${em2?.name}`,'success');
+    navigate('trocas');
+  },'Registrar');
+}
+function delSwap(id){if(!confirm('Remover o registro da troca? (a escala NÃO volta ao que era antes)'))return;S.swaps=S.swaps.filter(s=>s.id!==id);saveS();toast('Registro removido','warning');navigate('trocas');}
+
+// ================================================================
+// PAGE: COMPENSAÇÕES
+// ================================================================
+function pComps(){
+  const isAdm=S.config.role==='admin';
+  const comps=[...S.comps].sort((a,b)=>b.date.localeCompare(a.date));
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Compensações</h2><p>Horas extras e compensações</p></div>
+    <div class="ph-actions">${isAdm?`<button class="btn btn-primary" onclick="addComp()">+ Registrar</button>`:''}</div>
+  </div>
+  ${comps.length===0?`<div class="empty"><div class="empty-ic">⚖️</div><p>Nenhuma compensação registrada</p></div>`:`
+  <div class="tw">
+    <table>
+      <thead><tr><th>Data</th><th>Colaborador</th><th>Tipo</th><th>Horas</th><th>Motivo</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+      <tbody>${comps.map(c=>{const emp=fe(c.empId);return`<tr>
+        <td>${fmtD(c.date)}</td>
+        <td><div class="ag-cell">${emp?av(emp,'av-sm'):''} ${emp?.name||'?'}</div></td>
+        <td><span class="badge badge-purple">${c.type==='extra'?'Hora Extra':'Compensação'}</span></td>
+        <td class="fw7">${c.hours}h</td>
+        <td class="tsm tm">${c.reason||'—'}</td>
+        ${isAdm?`<td><button class="btn btn-ghost btn-sm" onclick="delComp('${c.id}')">🗑️</button></td>`:''}
+      </tr>`;}).join('')}
+      </tbody>
+    </table>
+  </div>`}
+</div>`;
+}
+function addComp(){
+  openModal('Registrar Compensação',`
+    <div class="flex fc g4">
+      <div class="fg"><label class="fl">Colaborador *</label><select class="fi" id="co-e">${EMP.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Tipo</label><select class="fi" id="co-t"><option value="extra">Hora Extra</option><option value="comp">Compensação</option></select></div>
+        <div class="fg"><label class="fl">Horas *</label><input type="number" class="fi" id="co-h" min="0.5" max="24" step="0.5" value="1"></div>
+      </div>
+      <div class="fg"><label class="fl">Data *</label><input type="date" class="fi" id="co-d" value="${d2s(new Date())}"></div>
+      <div class="fg"><label class="fl">Motivo</label><textarea class="fi" id="co-r" rows="2"></textarea></div>
+    </div>`,()=>{
+    const empId=document.getElementById('co-e')?.value;
+    const type=document.getElementById('co-t')?.value;
+    const hours=parseFloat(document.getElementById('co-h')?.value||1);
+    const date=document.getElementById('co-d')?.value;
+    const reason=document.getElementById('co-r')?.value?.trim()||'';
+    S.comps.push({id:gid(),empId,type,hours,date,reason,at:new Date().toISOString()});
+    saveS();const emp=fe(empId);
+    addLog('comp',`Compensação: ${emp?.name} ${hours}h (${fmtD(date)})`);
+    toast(`Compensação registrada para ${emp?.name}!`,'success');navigate('compensacoes');
+  },'Registrar');
+}
+function delComp(id){S.comps=S.comps.filter(c=>c.id!==id);saveS();toast('Removida','warning');navigate('compensacoes');}
+
+// ================================================================
+// PAGE: RELATÓRIOS
+// ================================================================
+function distinctSlots(kind,ws){
+  const out=[];
+  slotsInOrder(kind,ws).forEach(s=>{if(!out.find(x=>x.start===s.start&&x.end===s.end))out.push(s);});
+  return out.sort((a,b)=>a.start.localeCompare(b.start)||a.end.localeCompare(b.end));
+}
+function pRel(){
+  const ws=CWS;
+  const{cnt,lst}=ocCounts();
+  const maxCnt=Math.max(...EMP.map(e=>cnt[e.id]||0),1);
+
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Relatórios</h2><p>Análises e exportações</p></div>
+    <div class="ph-actions">
+      <button class="btn btn-primary" onclick="exportXLSX('${ws}')">📊 Exportar Excel</button>
+      <button class="btn btn-ghost" onclick="exportCSV('${ws}')">⬇ Exportar CSV</button>
+      <button class="btn btn-secondary" onclick="expOCcsv()">⬇ Plantões CSV</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir</button>
+    </div>
+  </div>
+
+  <!-- Weekday dist -->
+  <div class="card mb4">
+    <div class="ct">📊 Distribuição de Horários — Seg/Sex — ${fmtWR(ws)}</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Horário</th><th>Intervalo</th><th>Agentes</th></tr></thead>
+        <tbody>
+          ${distinctSlots('wd',ws).map(g=>{
+            const rows=EMP.map(e=>({e,s:empWdShift(e.id,ws)})).filter(r=>r.s&&r.s.start===g.start&&r.s.end===g.end);
+            return`<tr>
+              <td><div class="st">${g.start}–${g.end}</div></td>
+              <td class="tsm tm">${rows.length?rows.map(r=>`${r.e.name}: ${r.s.bkS}–${r.s.bkE}`).join(' • '):'—'}</td>
+              <td><div class="flex fw g2">${rows.map(r=>`<span class="badge badge-blue">${r.e.name}</span>`).join('')}${rows.length===0?'<span class="tm tsm">—</span>':''}</div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Saturday dist -->
+  <div class="card mb4">
+    <div class="ct">📋 Sábado — ${fmtD(sat(ws))}</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Horário</th><th>Agentes</th></tr></thead>
+        <tbody>
+          ${distinctSlots('sat',ws).map(sl=>{
+            const emps=EMP.filter(e=>{const ss=empSatSlot(e.id,ws);return ss&&ss.start===sl.start&&ss.end===sl.end;});
+            return`<tr><td><div class="st">${sl.start}–${sl.end}</div></td><td><div class="flex fw g2">${emps.map(e=>`<span class="badge badge-purple">${e.name}</span>`).join('')}</div></td></tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Oncall dist -->
+  <div class="card mb4">
+    <div class="ct">🌙 Distribuição de Plantões</div>
+    <div class="flex fc g3">
+      ${EMP.map(emp=>{
+        const c=cnt[emp.id]||0,pct=Math.round(c/maxCnt*100);
+        return`<div>
+          <div class="flex ia jb mb2">
+            <div class="flex ia g2">${av(emp,'av-sm')} <span class="tsm fw6">${emp.name}</span></div>
+            <span class="tsm fw7">${c} plantão${c!==1?'ões':''}</span>
+          </div>
+          <div class="progress"><div class="progress-fill" style="width:${pct}%;background:var(--c${colorOf(emp)})"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- Full schedule table for current week -->
+  <div class="card mb4">
+    <div class="ct">📅 Escala Completa — ${fmtWRF(ws)}</div>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Data</th><th>Dia</th><th>Agente</th><th>Horário</th><th>Intervalo</th><th>Tipo</th></tr></thead>
+        <tbody>
+          ${wkdays(ws).flatMap(date=>wdSchedule(ws,date).map(({emp,shift,onLeave})=>`
+            <tr>
+              <td>${fmtD(date)}</td>
+              <td class="tsm tm">${dayNS(date)}</td>
+              <td><div class="ag-cell">${av(emp,'av-sm')} ${emp.name}</div></td>
+              <td>${onLeave?'<span class="badge badge-gray">Folga</span>':`<span class="st">${shift?.start}–${shift?.end}</span>`}</td>
+              <td class="tsm tm">${onLeave?'—':shift?`${shift.bkS}–${shift.bkE}`:'—'}</td>
+              <td>${onLeave?'<span class="badge t-flg">Folga</span>':'<span class="badge t-exp">Expediente</span>'}</td>
+            </tr>`)).join('')}
+          ${satSchedule(ws).sort((a,b)=>(a.slot?.start||'').localeCompare(b.slot?.start||'')).map(({emp,slot,onLeave})=>`
+            <tr>
+              <td>${fmtD(sat(ws))}</td><td class="tsm tm">Sáb</td>
+              <td><div class="ag-cell">${av(emp,'av-sm')} ${emp.name}</div></td>
+              <td>${onLeave?'<span class="badge badge-gray">Folga</span>':`<span class="st">${slot?.start}–${slot?.end}</span>`}</td>
+              <td class="tsm tm">—</td>
+              <td>${onLeave?'<span class="badge t-flg">Folga</span>':'<span class="badge t-sat">Sábado</span>'}</td>
+            </tr>`).join('')}
+          ${(()=>{const oc2=S.oncall.find(h=>h.date===sun(ws));if(!oc2)return'';return oc2.emps.map(eid=>{const e=fe(eid);return`<tr><td>${fmtD(sun(ws))}</td><td class="tsm tm">Dom</td><td><div class="ag-cell">${e?av(e,'av-sm'):''} ${e?.name||'?'}</div></td><td><span class="st">08:00–18:00</span></td><td class="tsm tm">—</td><td><span class="badge t-plt">Plantão</span></td></tr>`;}).join('');})()}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit log -->
+  <div class="card">
+    <div class="ct">📝 Log de Atividades</div>
+    ${S.log.length===0?'<p class="tsm tm">Nenhuma atividade registrada</p>':`
+    <div class="flex fc" style="gap:0">
+      ${S.log.slice(0,30).map(l=>`
+        <div class="flex ia g3" style="padding:7px 0;border-bottom:1px solid var(--bd);font-size:.77rem">
+          <span class="tm" style="min-width:140px;flex-shrink:0">${new Date(l.at).toLocaleString('pt-BR')}</span>
+          <span class="f1">${l.detail}</span>
+          <span class="badge badge-gray">${l.by}</span>
+        </div>`).join('')}
+    </div>`}
+  </div>
+</div>`;
+}
+
+// ================================================================
+// PAGE: CONFIGURAÇÕES
+// ================================================================
+function pCfg(){
+  const cfg=S.config;
+
+  return`<div class="page-enter">
+  <div class="ph"><div><h2>Configurações</h2><p>Configurações do sistema</p></div></div>
+
+  <div class="grid g-2 g6">
+    <div class="flex fc g6">
+      <div class="card">
+        <div class="ct">👤 Perfil de Acesso</div>
+        <div class="flex fc g4">
+          <div class="fg"><label class="fl">Perfil</label>
+            <select class="fi" id="cf-role">
+              <option value="admin" ${cfg.role==='admin'?'selected':''}>Administrador</option>
+              <option value="employee" ${cfg.role==='employee'?'selected':''}>Colaborador</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl">Nome</label><input type="text" class="fi" id="cf-name" value="${cfg.name||''}"></div>
+          <button class="btn btn-primary" onclick="saveCfg()">💾 Salvar Perfil</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct">🔄 Rodízio & Plantão</div>
+        <div class="flex fc g4">
+          <div class="fg"><label class="fl">Plantonistas por Domingo</label><input type="number" class="fi" id="cf-oc" min="1" max="5" value="${cfg.oncallCount||2}"></div>
+          <div class="fg"><label class="fl">Descanso Mínimo (horas)</label><input type="number" class="fi" id="cf-rest" min="4" max="24" value="${cfg.minRest||10}"><p class="txs tm mt2">Intervalo mínimo entre fim do turno de sábado e início do plantão</p></div>
+          <button class="btn btn-primary" onclick="saveCfg()">💾 Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex fc g6">
+      <div class="card">
+        <div class="ct">ℹ️ Informações do Sistema</div>
+        <div class="flex fc" style="gap:0">
+          ${[
+            ['Versão',APP_VERSION],
+            ['Semana base',fmtD(BASE_WK)],
+            ['Colaboradores (semana exibida)',EMP.length],
+            ['Domingos registrados',S.oncall.length],
+            ['Ausências registradas',S.leaves.length],
+            ['Trocas registradas',S.swaps.length],
+            ['Compensações',S.comps.length],
+          ].map(([k,v])=>`<div class="flex ia jb" style="padding:8px 0;border-bottom:1px solid var(--bd)"><span class="tsm tm">${k}</span><span class="tsm fw7">${v}</span></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card" style="border-color:rgba(239,68,68,.3)">
+        <div class="ct" style="color:var(--red)">⚠️ Zona de Perigo</div>
+        <p class="tsm tm mb4">Esta ação apagará todos os registros de folgas, trocas, plantões e compensações, e a equipe volta aos 7 colaboradores originais (entradas e saídas feitas na aba Equipe serão perdidas).</p>
+        <button class="btn btn-danger" onclick="resetSys()">🗑️ Resetar Dados</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+function saveCfg(){
+  S.config.role=document.getElementById('cf-role')?.value||S.config.role;
+  S.config.name=document.getElementById('cf-name')?.value||S.config.name;
+  S.config.oncallCount=parseInt(document.getElementById('cf-oc')?.value)||2;
+  S.config.minRest=parseInt(document.getElementById('cf-rest')?.value)||10;
+  saveS();
+  document.getElementById('uname-el').textContent=S.config.name;
+  document.getElementById('urole-el').textContent=S.config.role==='admin'?'Admin':'Colaborador';
+  toast('Configurações salvas!','success');
+}
+function resetSys(){
+  const t=prompt('Digite RESETAR para confirmar (remove folgas, plantões, trocas e volta a equipe ao original):');
+  if(t==='RESETAR'){resetS();S.oncallMigrated=true;bootOncall();refreshEMP(CWS);toast('Sistema resetado!','warning');navigate('dashboard');}
+  else if(t!==null)toast('Texto incorreto. Reset cancelado.','error');
+}
+
+
+// ================================================================
+// PAGE: EQUIPE (adicionar / remover colaboradores)
+// ================================================================
+function weekOptions(from,count){const l=[];let w=from;for(let i=0;i<count;i++){l.push(w);w=nws(w);}return l;}
+function weekLabel(w){const l=wkLbl(w);return`${fmtWRF(w)}${/atual|Próxima/.test(l)?' ('+l.toLowerCase()+')':''}`;}
+
+function pEquipe(){
+  const isAdm=S.config.role==='admin',now=getCWS();
+  const refW=e=>e.from&&e.from>now?e.from:now;
+  const act=S.team.filter(e=>!e.to||e.to>now);
+  const byShift=(x,y)=>shiftKey(x,refW(x)).localeCompare(shiftKey(y,refW(y)),'pt-BR');
+  // Ordem: quem fica (por horário Seg–Sex, depois sábado, depois nome) e, no fim, quem tem saída agendada
+  const visible=[...act.filter(e=>!(e.to&&e.to>now)).sort(byShift),...act.filter(e=>e.to&&e.to>now).sort(byShift)];
+  const former=sortByShift(S.team.filter(e=>e.to&&e.to<=now),pws(now));
+  const{cnt}=ocCounts();
+  const events=[...S.events].sort((a,b)=>a.week.localeCompare(b.week)||a.at.localeCompare(b.at));
+  const status=e=>e.from&&e.from>now?`<span class="badge badge-blue">Entra em ${fmtD(e.from)}</span>`:(e.to&&e.to>now?`<span class="badge badge-amber">Sai em ${fmtD(e.to)}</span>`:'<span class="badge badge-green">Ativo</span>');
+  const sl=s=>s?`<div class="st">${s.start}–${s.end}</div>`:'<span class="tm">—</span>';
+  const evDet=ev=>{
+    if(ev.type==='hire'){const a=slotDef('wd',ev.wdSlot),b=slotDef('sat',ev.satSlot);return a||b?`Entra em Seg–Sex ${a?a.start+'–'+a.end:'?'} • Sáb ${b?b.start+'–'+b.end:'?'}`:'Horário definido automaticamente';}
+    const a=slotDef('wd',ev.wdRemove),b=slotDef('sat',ev.satRemove);return`Horário removido: Seg–Sex ${a?a.start+'–'+a.end:'—'} • Sáb ${b?b.start+'–'+b.end:'—'}`;
+  };
+  return`<div class="page-enter">
+  <div class="ph">
+    <div><h2>Equipe</h2><p>Entradas e saídas de colaboradores — o rodízio e os plantões se ajustam sozinhos</p></div>
+    <div class="ph-actions">${isAdm?`<button class="btn btn-primary" onclick="addEmployee()">+ Novo colaborador</button>`:''}</div>
+  </div>
+  <div class="tw mb4"><table>
+    <thead><tr><th>Colaborador</th><th>Situação</th><th>Seg–Sex</th><th>Sábado</th><th>Plantões</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+    <tbody>${visible.map(e=>{const ws=refW(e);return`<tr>
+      <td><div class="ag-cell">${isAdm?`<span class="av-btn" title="Alterar cor" onclick="pickColor('${e.id}')">${av(e)}</span>`:av(e)} <span class="fw6">${e.name}</span></div></td>
+      <td>${status(e)}</td><td>${sl(empWdShift(e.id,ws))}</td><td>${sl(empSatSlot(e.id,ws))}</td>
+      <td class="fw7">${cnt[e.id]||0}</td>
+      ${isAdm?`<td><div class="flex g2"><button class="btn btn-ghost btn-sm" onclick="pickColor('${e.id}')" title="Alterar cor das iniciais">🎨 Cor</button>${e.to?'<span class="txs tm">Saída agendada</span>':`<button class="btn btn-ghost btn-sm" onclick="removeEmployee('${e.id}')">🗑️ Remover</button>`}</div></td>`:''}
+    </tr>`;}).join('')}</tbody></table></div>
+  <div class="txs tm mb4">Lista ordenada por horário (Seg–Sex, depois sábado). Horários da semana atual — ou da semana de entrada, para quem ainda vai entrar. Quem tem saída agendada aparece no fim.</div>
+  <div class="card mb4"><div class="ct">📋 Mudanças de equipe</div>
+    ${events.length===0?'<p class="tsm tm">Nenhuma entrada ou saída registrada.</p>':`<div class="tw"><table>
+    <thead><tr><th>A partir de</th><th>Tipo</th><th>Colaborador</th><th>Detalhes</th>${isAdm?'<th>Ação</th>':''}</tr></thead>
+    <tbody>${events.map(ev=>{const e=fe(ev.empId);return`<tr>
+      <td class="fw6">${fmtD(ev.week)}</td>
+      <td><span class="badge ${ev.type==='hire'?'badge-green':'badge-red'}">${ev.type==='hire'?'Entrada':'Saída'}</span></td>
+      <td>${e?e.name:'?'}</td><td class="tsm tm">${evDet(ev)}</td>
+      ${isAdm?`<td>${ev.week>now?`<button class="btn btn-ghost btn-sm" onclick="cancelEv('${ev.id}')">Cancelar</button>`:'<span class="txs tm">—</span>'}</td>`:''}
+    </tr>`;}).join('')}</tbody></table></div>`}
+  </div>
+  ${former.length?`<div class="card"><div class="ct">🗂️ Ex-colaboradores</div><div class="flex fw g2">${former.map(e=>`<div class="chip">${av(e,'av-sm')} ${e.name} <span class="txs tm">até ${fmtD(pws(e.to))}</span></div>`).join('')}</div></div>`:''}
+</div>`;
+}
+// ---- Seletor de cor das iniciais ----
+let _pickSel=0;
+function swatchGrid(sel,fn){
+  return`<div class="swatches">${PALETTE.map((x,i)=>`<button type="button" class="sw${i===sel?' sel':''}" style="--sw:${x.c}" title="${x.n}" aria-label="${x.n}" onclick="${fn}(${i})"><span>${i===sel?'✓':''}</span></button>`).join('')}</div>`;
+}
+function pickColor(empId){
+  const e=S.team.find(x=>x.id===empId);if(!e)return;
+  _pickSel=colorOf(e);
+  const draw=()=>`<div class="flex fc g4" style="align-items:center">
+    <div class="flex g3" style="align-items:center"><div id="pc-prev">${av({...e,color:_pickSel},'av-lg')}</div><div><div class="fw6">${e.name}</div><div class="txs tm" id="pc-name">${PALETTE[_pickSel].n}</div></div></div>
+    <div id="pc-grid">${swatchGrid(_pickSel,'pickColorSel')}</div>
+    <p class="txs tm">A cor aparece nas iniciais do colaborador em todas as telas.</p></div>`;
+  window._pcDraw=draw;window._pcEmp=e;
+  openModal(`Cor — ${e.name}`,draw(),()=>{setColor(empId,_pickSel);toast(`Cor de ${e.name} alterada para ${PALETTE[_pickSel].n}`,'success');navigate(CUR);},'Salvar');
+}
+function pickColorSel(i){
+  _pickSel=i;const e=window._pcEmp;
+  document.getElementById('pc-prev').innerHTML=av({...e,color:i},'av-lg');
+  document.getElementById('pc-name').textContent=PALETTE[i].n;
+  document.getElementById('pc-grid').innerHTML=swatchGrid(i,'pickColorSel');
+}
+function cancelEv(id){
+  if(!confirm('Cancelar esta mudança de equipe? Edições manuais de horário feitas a partir dessa semana serão desfeitas.'))return;
+  if(cancelTeamEvent(id))toast('Mudança cancelada','warning');else toast('Só dá para cancelar mudanças futuras','error');
+  navigate('equipe');
+}
+
+const csum=c=>Object.keys(c).filter(k=>c[k]>0).sort().map(k=>`${k} ×${c[k]}`).join(' · ');
+function hirePreview(){
+  const w=document.getElementById('nh-week')?.value,box=document.getElementById('nh-prev');
+  if(!w||!box)return;
+  const part=kind=>{
+    const o=orderAt(kind,w),s=startForHire(kind,o),t=typeFor(kind,s),c=countsOf(kind,o);c[s]=(c[s]||0)+1;
+    return{band:`${t.start}–${t.end}`,sum:csum(c)};
+  };
+  const a=part('wd'),b=part('sat'),n=orderAt('wd',w).length+1;
+  box.innerHTML=`<div><div class="alert-title">Horário automático: Seg–Sex ${a.band} • Sábado ${b.band}</div><div class="alert-msg">Equipe de ${n} pessoas<br>Seg–Sex: ${a.sum}<br>Sábado: ${b.sum}</div></div>`;
+}
+let _nhColor=0;
+function nhColorSel(i){_nhColor=i;document.getElementById('nh-colors').innerHTML=swatchGrid(i,'nhColorSel');}
+function addEmployee(){
+  _nhColor=nextColor();
+  const now=getCWS(),weeks=weekOptions(now,27),def=nws(now);
+  openModal('Novo colaborador',`<div class="flex fc g4">
+    <div class="fg"><label class="fl">Nome *</label><input class="fi" id="nh-name" maxlength="30" placeholder="Nome do colaborador"></div>
+    <div class="fg"><label class="fl">Entra na escala na semana de *</label><select class="fi" id="nh-week" onchange="hirePreview()">${weeks.map(w=>`<option value="${w}" ${w===def?'selected':''}>${weekLabel(w)}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Cor das iniciais</label><div id="nh-colors"></div></div>
+    <div class="fg"><label class="fl">Fila de plantão</label><select class="fi" id="nh-q"><option value="end">Entra no fim da fila (recomendado)</option><option value="now">Pode ser escalado já no próximo domingo</option></select></div>
+    <div class="alert al-info" id="nh-prev" style="margin:0"></div>
+    <p class="txs tm">O horário é definido sozinho pela regra da equipe: Seg–Sex entra em 08h → 10h → 12h (o 07h continua com 1 pessoa); sábado entra em 14h → 08h → 10h (o 16h não recebe novos). Ninguém muda de horário na semana de entrada. Plantões automáticos dali em diante são refeitos; edições manuais de horário a partir dessa semana são desfeitas.</p>
+  </div>`,()=>{
+    const name=cleanName(document.getElementById('nh-name')?.value);
+    const week=document.getElementById('nh-week')?.value;
+    if(!name){toast('Informe o nome','error');return;}
+    if(S.team.some(e=>!e.to&&e.name.toLowerCase()===name.toLowerCase())){toast('Já existe um colaborador com esse nome','error');return;}
+    addHire({name,week,queue:document.getElementById('nh-q').value});
+    {const ne=S.team[S.team.length-1];if(ne&&ne.name===name)setColor(ne.id,_nhColor);}
+    toast(`${name} adicionado(a) a partir de ${fmtD(week)}`,'success');navigate('equipe');
+  },'Adicionar');
+  hirePreview();nhColorSel(_nhColor);
+}
+
+function rmWeek(){return document.getElementById('rm-week')?.value;}
+// Simula a saída: horário que deixa de existir e quem (se alguém) muda de horário
+function simLeave(empId,W){
+  const team=teamW(W).slice();if(!team.some(e=>e.id===empId))team.push(fe(empId));
+  const out={};
+  ['wd','sat'].forEach(kind=>{
+    const order=orderAt(kind,W),cur={};
+    team.forEach(e=>{const s=empSlotId(kind,e.id,W,true);if(s)cur[e.id]=s;});
+    const plan=planLeave(kind,order,cur,empId),rest=order.filter(i=>i!==plan.rem);
+    const d=i=>{const x=slotDef(kind,i);return x?x.start+'–'+x.end:'—';};
+    out[kind]={plan,sum:csum(countsOf(kind,rest)),removed:plan.rem?d(plan.rem):'—',own:cur[empId]?d(cur[empId]):'—',
+      holder:plan.holder?fe(plan.holder):null,holderTo:plan.holderTo?d(plan.holderTo):null,holderFrom:plan.rem?d(plan.rem):null};
+  });
+  return out;
+}
+function renderRemoveDyn(empId){
+  const W=rmWeek(),box=document.getElementById('rm-dyn');if(!W||!box)return;
+  box.innerHTML=`<div class="alert al-info" id="rm-prev" style="margin:0"></div>`;
+  removePreview(empId);
+}
+function removePreview(empId){
+  const W=rmWeek(),box=document.getElementById('rm-prev');if(!W||!box)return;
+  const sim=simLeave(empId,W);
+  const remaining=teamW(W).filter(e=>e.id!==empId).length;
+  const manual=S.oncall.filter(h=>!h.auto&&h.date>=sun(W)&&h.emps.includes(empId)).map(h=>fmtD(h.date));
+  const small=remaining<7?`<br>⚠️ Equipe abaixo de 7 pessoas: algumas faixas ficam com menos gente.`:'';
+  const moves=['wd','sat'].filter(k=>sim[k].holder).map(k=>`${sim[k].holder.name} passa de ${sim[k].holderFrom} para ${sim[k].holderTo} (${k==='wd'?'Seg–Sex':'sábado'}) na semana da saída`);
+  box.className='alert '+(remaining<2?'al-danger':(remaining<7||manual.length||moves.length?'al-warning':'al-info'));
+  box.innerHTML=`<div><div class="alert-title">Equipe ficará com ${remaining} pessoa${remaining===1?'':'s'}</div><div class="alert-msg">Horário automático removido: Seg–Sex ${sim.wd.removed} • Sábado ${sim.sat.removed}<br>Seg–Sex: ${sim.wd.sum}<br>Sábado: ${sim.sat.sum}
+    ${remaining<2?'<br><b>Mínimo de 2 pessoas na equipe.</b>':''}${small}${moves.length?'<br>🔁 '+moves.join('<br>🔁 '):''}${manual.length?`<br>⚠️ Plantões manuais com essa pessoa: ${manual.join(', ')} — edite depois`:''}</div></div>`;
+}
+function removeEmployee(empId){
+  const e=fe(empId),now=getCWS();if(!e)return;
+  const first=e.from&&e.from>now?nws(e.from):now,weeks=weekOptions(first,27);
+  const def=weeks.includes(nws(now))?nws(now):first;
+  openModal(`Remover — ${e.name}`,`<div class="flex fc g4">
+    <p class="tsm tm">${e.name} trabalha até o domingo anterior à semana escolhida. Para sair no meio de uma semana, registre uma folga/afastamento nos dias restantes.</p>
+    <div class="fg"><label class="fl">Deixa a escala a partir da semana de *</label><select class="fi" id="rm-week" onchange="renderRemoveDyn('${empId}')">${weeks.map(w=>`<option value="${w}" ${w===def?'selected':''}>${weekLabel(w)}</option>`).join('')}</select></div>
+    <div id="rm-dyn"></div>
+    <p class="txs tm">A saída segue a ordem inversa da entrada: Seg–Sex 12h → 10h → 08h; sábado 10h → 08h → 14h (o 07h e o 16h só mudam abaixo da base de 7). Plantões automáticos dali em diante são refeitos; edições manuais de horário a partir dessa semana são desfeitas. O histórico dele(a) é mantido.</p>
+  </div>`,()=>{
+    const W=rmWeek();
+    if(teamW(W).filter(x=>x.id!==empId).length<2){toast('A equipe precisa ter pelo menos 2 pessoas','error');return;}
+    addLeaveEvent({empId,week:W});
+    toast(`${e.name} sai da escala a partir de ${fmtD(W)}`,'warning');navigate('equipe');
+  },'Remover');
+  renderRemoveDyn(empId);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+// Gera (sem sobrescrever o que já existe) os plantões das próximas N semanas a partir de hoje.
+// Plantões gerados aqui levam auto:true e podem ser recalculados; os confirmados à mão ficam intactos.
+function autoConfirmOncall(weeksAhead){
+  weeksAhead=weeksAhead||16;
+  const lim=new Date();lim.setDate(lim.getDate()+weeksAhead*7);
+  const limit=d2s(lim);
+  let date=ONCALL_INITIAL[0]?.date||sun(getCWS());
+  let guard=0;
+  while(date<=limit&&guard++<1000){
+    if(!S.oncall.find(h=>h.date===date)){
+      const sel=nextOC(date,S.oncall);
+      if(sel&&sel.length>0){
+        S.oncall.push({date,emps:sel,auto:true});
+        S.oncall.sort((a,b)=>a.date.localeCompare(b.date));
+      }
+    }
+    date=nws(date);
+  }
+}
+function bootOncall(){
+  autoConfirmOncall(16);
+  rebuildPreOncallLeaves();
+  saveS();
+}
+
+function init(){
+  injectPalette();
+  loadS();
+  if(!S.oncallMigrated){ // plantões futuros gerados pela versão antiga passam a ser "automáticos"
+    const initDates=ONCALL_INITIAL.map(h=>h.date),cs=sun(getCWS());
+    S.oncall.forEach(h=>{if(!initDates.includes(h.date)&&h.date>=cs)h.auto=true;});
+    S.oncallMigrated=true;
+  }
+  CWS=getCWS();
+  refreshEMP(CWS);
+  bootOncall();
+  buildNav();
+  document.getElementById('uname-el').textContent=S.config.name||'Administrador';
+  document.getElementById('urole-el').textContent=S.config.role==='admin'?'Admin':'Colaborador';
+  navigate('dashboard');
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.getElementById('app-modal')?.remove();
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();navigate('escala');}
+});
+
+window.addEventListener('DOMContentLoaded',init);
+
+</script>
+</body>
+</html>
